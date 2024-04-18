@@ -104,12 +104,42 @@ class FileEntry(TableEntry):
            pass
            #raise urwid.ExitMainLoop()
        
-class TwoTabs(urwid.widget):
+class TwoTabs(urwid.WidgetContainerMixin):
+    _selectable=False
+
+    def selectable(self)->bool:
+        return True
+    def __init__(self) -> None:
+        super().__init__()
+        left=build_list(build_table())
+        right=build_list(build_table())
+        res=urwid.Columns([left,right],dividechars=3)
+        self.contents=[(res,None)]
+        
+
+    def triggerFocusChange(self)->bool:
+        self.contents[0][0].focus_position^=1
+        return True
+
+    def keypress(self,size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
+        if key=='tab':
+            self.contents[0][0].focus_position^=1
+
+        return self.contents[0][0].focus.keypress(size,key)
+        
+
+    def mouse_event(self,size: tuple[()] | tuple[int] | tuple[int, int], event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
+            return self.contents[0][0].mouse_event(size,event,button,col,row,True)
+
     def render(self, size: tuple[int,int], focus: bool = False) -> urwid.Canvas:
         (maxcol,maxrow) = size
-
         left=build_list(build_table())
+        right=build_list(build_table())
         
+        return self.contents[0][0].render(size,focus)
+    
+   
+
 
 
 def build_table()->iterable[File]:
@@ -126,9 +156,10 @@ def build_list(fileEntries:iterable[File]) -> urwid.ListBox:
     ans=urwid.Filler(lbx,height=20)
     return ans
 
-list=build_list(build_table())
+#list=build_list(build_table())
+content=TwoTabs()
 top = urwid.Overlay(
-    list,
+    content,
     urwid.SolidFill("\N{MEDIUM SHADE}"),
     align=urwid.CENTER,
     width=(urwid.RELATIVE, 85),
