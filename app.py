@@ -103,16 +103,21 @@ class FileEntry(TableEntry):
        if (not focus and self.data.isDir()):
            pass
            #raise urwid.ExitMainLoop()
-       
-class TwoTabs(urwid.WidgetContainerMixin):
+    def keypress(self,size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
+        super().keypress(size,key)
+        if (key=='enter' and self.data.isDir()):
+            content.update(self.data.getPath())
+        return super().keypress(size,key)
+   
+class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget):
     _selectable=False
 
     def selectable(self)->bool:
         return True
     def __init__(self) -> None:
         super().__init__()
-        left=build_list(build_table())
-        right=build_list(build_table())
+        left=build_list(build_table("/"))
+        right=build_list(build_table("/"))
         res=urwid.Columns([left,right],dividechars=3)
         self.contents=[(res,None)]
         
@@ -122,6 +127,7 @@ class TwoTabs(urwid.WidgetContainerMixin):
         return True
 
     def keypress(self,size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
+        
         if key=='tab':
             self.contents[0][0].focus_position^=1
 
@@ -138,12 +144,15 @@ class TwoTabs(urwid.WidgetContainerMixin):
         
         return self.contents[0][0].render(size,focus)
     
+    def update(self,path)->None:
+        self.contents[0][0].contents[0]=(build_list(build_table(path)),self.contents[0][0].contents[0][1])
+        self._invalidate()
    
 
 
 
-def build_table()->iterable[File]:
-    return [File.fromPath(h) for h in listdir()]
+def build_table(path=None)->iterable[File]:
+    return [File.fromPath(os.path.join("" if path is None else path,h)) for h in listdir(path)]
 
 def build_list(fileEntries:iterable[File]) -> urwid.ListBox:
     space_distr=[0.6,0.4]
@@ -152,7 +161,7 @@ def build_list(fileEntries:iterable[File]) -> urwid.ListBox:
         temp=FileEntry(h)
         finres.append(temp)
     lbx=urwid.ListBox(finres)
-    lbx.set_focus(0)
+    #lbx.set_focus(0)
     ans=urwid.Filler(lbx,height=20)
     return ans
 
