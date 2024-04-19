@@ -3,6 +3,7 @@ import debugpy
 import time
 from os import listdir
 import os
+
 import os.path
 from os.path import isfile, join
 import urwid
@@ -42,9 +43,19 @@ lastTbx=0
 
 class File:
     _path:str
+    _selected:bool
     def getSize(self)->int | None:
         return os.path.getsize(self._path)
     
+    def getSelectedFormatted(self)->str:
+        return "(*)" if self._selected else "( )"
+    def getSelected(self)->bool:
+        return self._selected
+
+    def setSelected(self,value:bool)->None:
+        self._selected=value
+        
+
     def getFormattedSize(self)->str:
         sz=self.getSize()
         if sz is None:
@@ -63,6 +74,7 @@ class File:
     def fromPath(path:str)->str:
         file=File()
         file._path=path
+        file._selected=False
         return file
 
     def getPath(self)->str:
@@ -97,16 +109,39 @@ class TableEntry(urwid.Widget):
         return cols.render(size,focus)
 
 class FileEntry(TableEntry):
-    schema=[("getPath",4),("getFormattedSize",1)]
+    def __init__(self, data,pos) -> None:
+        super().__init__(data)
+        self.pos=pos
+        self._lastClick=0
+
+    schema=[("getPath",4),("getFormattedSize",1),("getSelectedFormatted",0.5)]
+
+    def doubleClick(self)->None:
+        self.step_in()
+
     def mouse_event(self,size: tuple[int], event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
        #print ("KABOOM")
+       if (button==1 and event=="mouse press"):
+            if (time.time()-self._lastClick<200):
+                self.doubleClick()
+            self._lastClick=time.time()
+        
+        
        if (not focus and self.data.isDir()):
            pass
            #raise urwid.ExitMainLoop()
+
+    def step_in(self)->None:
+        if (self.data.isDir()):
+            content.update(self.data.getPath(),self.pos)
+    
     def keypress(self,size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
         super().keypress(size,key)
-        if (key=='enter' and self.data.isDir()):
-            content.update(self.data.getPath())
+        if (key=='enter'):
+            self.step_in()
+        if (key==' '):
+            self.data.setSelected(not self.data.getSelected())
+            self._invalidate()
         return super().keypress(size,key)
    
 class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget):
@@ -116,8 +151,9 @@ class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget):
         return True
     def __init__(self) -> None:
         super().__init__()
-        left=build_list(build_table("/"))
-        right=build_list(build_table("/"))
+        left=FilePanel("/home",0)
+        right=FilePanel("/home",1)
+        #right=build_list(build_table("/"))
         res=urwid.Columns([left,right],dividechars=3)
         self.contents=[(res,None)]
         
@@ -125,7 +161,7 @@ class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget):
     def triggerFocusChange(self)->bool:
         self.contents[0][0].focus_position^=1
         return True
-
+    
     def keypress(self,size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
         
         if key=='tab':
@@ -139,13 +175,11 @@ class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget):
 
     def render(self, size: tuple[int,int], focus: bool = False) -> urwid.Canvas:
         (maxcol,maxrow) = size
-        left=build_list(build_table())
-        right=build_list(build_table())
         
         return self.contents[0][0].render(size,focus)
     
-    def update(self,path)->None:
-        self.contents[0][0].contents[0]=(build_list(build_table(path)),self.contents[0][0].contents[0][1])
+    def update(self,path,num)->None:
+        self.contents[0][0].contents[num]=(FilePanel(path,num),self.contents[0][0].contents[num][1])
         self._invalidate()
    
 
@@ -154,11 +188,49 @@ class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget):
 def build_table(path=None)->iterable[File]:
     return [File.fromPath(os.path.join("" if path is None else path,h)) for h in listdir(path)]
 
+
+class FilePanel(urwid.Filler):
+
+    def __init__(self,path=None,pos=0) -> None:
+        self._path=path
+        self.pos=pos
+        temp=build_table(path)
+        lbx=urwid.ListBox([FileEntry(h,self.pos) for h in temp])
+        super().__init__(lbx,height=20)
+        self._lastClick=0
+    
+    _path:str
+
+    def getPath(self)->str:
+        return self._path
+    def update(self)->None:
+        temp=build_table(self._path)
+        lbx=urwid.ListBox([FileEntry(h,self.pos) for h in temp])
+        self.body=lbx
+    
+
+    
+    def keypress(self, size: tuple[int, int] | tuple[()], key: str) -> str | None:
+        if (key=='left'):
+            self._path=os.path.dirname(self._path)
+            self.update()
+            return None
+        return super().keypress(size, key)
+
+    def doubleClick():
+        pass
+    def mouse_event(self, size: tuple[int, int] | tuple[int], event, button: int, col: int, row: int, focus: bool) -> bool | None:
+        
+        return super().mouse_event(size, event, button, col, row, focus)
+
+
+
 def build_list(fileEntries:iterable[File]) -> urwid.ListBox:
     space_distr=[0.6,0.4]
     finres=[]
     for h in fileEntries:
-        temp=FileEntry(h)
+
+        temp=FileEntry(h,1)
         finres.append(temp)
     lbx=urwid.ListBox(finres)
     #lbx.set_focus(0)
@@ -166,7 +238,7 @@ def build_list(fileEntries:iterable[File]) -> urwid.ListBox:
     return ans
 
 #list=build_list(build_table())
-content=TwoTabs()
+content=TwoTabs()   
 top = urwid.Overlay(
     content,
     urwid.SolidFill("\N{MEDIUM SHADE}"),
