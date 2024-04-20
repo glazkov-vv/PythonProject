@@ -1,7 +1,9 @@
 import urwid
-import logic.workspace as workspace
-import logic.file as file
+
 import time
+
+from logic.file import File
+from logic.workspace import Workspace
 
 
 class TableEntry(urwid.Widget):
@@ -31,8 +33,9 @@ class TableEntry(urwid.Widget):
         return cols.render(size,focus)
 
 class FileEntry(TableEntry):
-    def __init__(self, data:file,pos:int,workspace:workspace) -> None:
+    def __init__(self, data:File,pos:int,workspace:Workspace) -> None:
         super().__init__(data)
+        data.subscribe(self.rebuild)
         self.pos=pos
         self._lastClick=0
         self._workspace=workspace
@@ -42,10 +45,13 @@ class FileEntry(TableEntry):
     def doubleClick(self)->None:
         self.step_in()
 
+    def rebuild(self)->None:
+        self._invalidate()
+
     def mouse_event(self,size: tuple[int], event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
        #print ("KABOOM")
        if (button==1 and event=="mouse press"):
-            if (time.time()-self._lastClick<200):
+            if (time.time()-self._lastClick<0.2):
                 self.doubleClick()
             self._lastClick=time.time()
         
@@ -66,5 +72,5 @@ class FileEntry(TableEntry):
             self.step_in()
         if (key==' '):
             self.data.setSelected(not self.data.getSelected())
-            self._invalidate()
+            #self._invalidate()
         return super().keypress(size,key)

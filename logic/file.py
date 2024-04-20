@@ -1,9 +1,15 @@
 import os
 import os.path
 
-class File:
+from logic.subscriptable import Subscriptable
+
+class File(Subscriptable):
     _path:str
     _selected:bool
+
+    def __init__(self) -> None:
+        super().__init__()
+    
     def getSize(self)->int | None:
         return os.path.getsize(self._path)
     
@@ -14,6 +20,7 @@ class File:
 
     def setSelected(self,value:bool)->None:
         self._selected=value
+        self.send_update()
         
 
     def getFormattedSize(self)->str:
@@ -39,3 +46,5 @@ class File:
 
     def getPath(self)->str:
         return self._path
+    def get_name(self)->str:
+        return os.path.basename(self._path)

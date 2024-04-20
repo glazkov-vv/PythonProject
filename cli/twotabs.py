@@ -15,8 +15,8 @@ class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget):
         active_workspaces[1]=Workspace("/home")
         left=FilePanel(active_workspaces[0],0)
         right=FilePanel(active_workspaces[1],1)
-        active_workspaces[0].set_callback_object(left)
-        active_workspaces[1].set_callback_object(right)
+        active_workspaces[0].subscribe(left.rebuild)
+        active_workspaces[1].subscribe(right.rebuild)
         #right=build_list(build_table("/"))
         res=urwid.Columns([left,right],dividechars=3)
         self.contents=[(res,None)]

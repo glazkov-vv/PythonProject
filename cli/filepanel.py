@@ -22,7 +22,7 @@ class FilePanel(urwid.Filler):
         self.body=lbx """
     
 
-    def update_from_top(self)->None:
+    def rebuild(self)->None:
         lbx=urwid.ListBox([FileEntry(h,self.pos,self._workspace) for h in self._workspace.get_contents()])
         self.body=lbx
         self._invalidate()
