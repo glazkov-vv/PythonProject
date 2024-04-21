@@ -1,9 +1,13 @@
+import asyncio
 class StackedView:
     def __init__(self) -> None:
+        self._updated_event=asyncio.Event()
+
         pass
     
     def assign_prev(self,prev, fun)->None: # type: ignore
         self._prev_in_stack=prev
+        
         self._fun_for_stack=fun
     
     def push_on_stack(self,next)->None: # type: ignore

@@ -1,3 +1,4 @@
+import asyncio
 import urwid
 from cli.stackedview import StackedView
 from logic.file import *
@@ -11,6 +12,8 @@ class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget,StackedView):
         return True
     def __init__(self,custom_data,active_workspaces) -> None:
         super().__init__()
+        self._updated_event=asyncio.Event()
+
         self._custom_data=custom_data
         self._custom_data["viewstack_push_function"]=self.push_on_stack
         active_workspaces[0]=Workspace("/home")

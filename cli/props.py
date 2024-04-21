@@ -1,5 +1,7 @@
+import asyncio
 from typing_extensions import Literal
 import urwid
+from cli.error import ErrorWindow
 from cli.stackedview import StackedView
 from logic.file import *
 from logic.transactions import ChangePermissionTransaction, MoveTransaction
@@ -10,6 +12,8 @@ from logic.transactions import ChangePermissionTransaction, MoveTransaction
 class PropertyWindow(urwid.Widget,StackedView):
     def __init__(self,file:File) -> None:
         super().__init__()
+        self._updated_event=asyncio.Event()
+
         self._file=file
         self._name_edit=urwid.Edit(edit_text=file.get_name())
         name=urwid.AttrMap(self._name_edit,None,"reversed")
@@ -61,7 +65,8 @@ class PropertyWindow(urwid.Widget,StackedView):
         if (key=="esc"):
             self.pop_on_stack()
         if (key=="enter"):
-            self.apply()
+            asyncio.create_task(self.apply())
+            #self.apply()
         val= self._content.keypress(size, key)
         return val
     
@@ -74,14 +79,23 @@ class PropertyWindow(urwid.Widget,StackedView):
             ans[i]=self._permissions_table[i].get_state()
         return ans
 
-    def apply(self)->None:
+    def rebuild(self)->None:
+        pass
+    
+    async def apply(self)->None:
 
         if (self.get_permissions()!=self._init_permissions):
             t1=ChangePermissionTransaction(self._file.getPath(),self._init_permissions,self.get_permissions())
-            t1.execute()
+            res=t1.execute()
+            if (res):
+                self.push_on_stack(ErrorWindow(res))
+                await self._updated_event.wait()
         if (self.get_name()!=self._init_name):
             t2=MoveTransaction(self._file.getPath(),os.path.join(self._file.get_directory(),self.get_name()))
-            t2.execute()
+            res=t2.execute()
+            if (res):
+                self.push_on_stack(ErrorWindow(res))
+                
             
         self.pop_on_stack()
     

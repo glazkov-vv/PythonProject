@@ -23,6 +23,8 @@ debugpy.wait_for_client()
 
 
 
+
+
 def exit_on_q(key):
     if key in {"q", "Q"}:
         present=top.contents
@@ -83,6 +85,8 @@ top = urwid.Overlay(
 
 
 def update(value:StackedView):
+    value._updated_event.set()
+    value._updated_event.clear()
     loop.widget=urwid.Overlay(
         value,
         urwid.SolidFill("\N{MEDIUM SHADE}"),
@@ -97,7 +101,7 @@ def update(value:StackedView):
 content.assign_prev(None,update)
 
 
-loop=urwid.MainLoop(urwid.SolidFill('*'),palette=[("reversed", "standout", "")],unhandled_input=exit_on_q)
+loop=urwid.MainLoop(urwid.SolidFill('*'),palette=[("reversed", "standout", "")],unhandled_input=exit_on_q,event_loop=urwid.AsyncioEventLoop())
 
 update(content)
 
