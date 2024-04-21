@@ -10,11 +10,20 @@ def build_table(path=None)->Iterable[File]:
     return [File.fromPath(os.path.join("" if path is None else path,h)) for h in listdir(path)]
 
 
+class WorkspaceManager:
+    _instances=[]
+    def rebuild_all()->None:
+        for h in WorkspaceManager._instances:
+            h.rebuild()
+
 class Workspace(Subscriptable):
+    def __del__(self)->None:
+        WorkspaceManager._instances.remove(self)
     def __init__(self,path) -> None:
         super().__init__()
         self._path=path
         self.rebuild()
+        WorkspaceManager._instances.append(self)
     def rebuild(self)->None:
         self._contents=build_table(self.get_path())
     def get_contents(self)->Iterable[File]:

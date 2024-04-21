@@ -11,7 +11,7 @@ class PropertyWindow(urwid.Widget,StackedView):
     def __init__(self,file:File) -> None:
         super().__init__()
         self._file=file
-        self._name_edit=urwid.Edit(file.get_name())
+        self._name_edit=urwid.Edit(edit_text=file.get_name())
         name=urwid.AttrMap(self._name_edit,None,"reversed")
 
         sep1=urwid.Divider("-")

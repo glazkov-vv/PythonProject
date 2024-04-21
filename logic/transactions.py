@@ -3,6 +3,7 @@ import os
 import shutil
 from typing import *
 from logic.permissions import FilePermissions
+from logic.workspace import WorkspaceManager
 
 class Transaction:
     def __init__(self,path:str) -> None:
@@ -32,4 +33,5 @@ class MoveTransaction(Transaction):
     
     def execute(self,progress_callback:None|Callable=None)->None:
         shutil.move(self._path,self._new_path)
+        WorkspaceManager.rebuild_all()
         
