@@ -53,10 +53,20 @@ class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget,ExecutesTransactions):
         Manager.operation_mode="normal"
 
     def keypress(self,size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
+        if (key=="z"):
+            if (Manager.operation_mode=="normal"):
+                val=Manager.pop_from_queue()
+                if (val!=None):
+                    asyncio.create_task(self.execute_transaction(val,True))
+                
+                return None
+        
+
         if (key=='f5'):
             if (Manager.operation_mode=="normal"):
                 for h in Manager.active_workspaces:
                     h.rebuild()
+                return None
         if (key=='v'):
             if (Manager.get_lock()!=None):
                 asyncio.create_task(self.paste())

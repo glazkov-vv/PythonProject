@@ -28,17 +28,8 @@ class ChangePermissionTransaction(Transaction):
             return "Operation not permitted"
             
 
-class MoveSingleTransaction(Transaction):
-    def __init__(self,path:str,new_path:str) -> None:
-        self._path=path
-        self._new_path=new_path
 
-    def revert(self)->MoveSingleTransaction:
-        return MoveSingleTransaction(self._new_path,self._path)
-    
-    def execute(self,progress_callback:None|Callable=None)->None|str:
-        shutil.move(self._path,self._new_path)
-        WorkspaceManager.rebuild_all()
+   
     
 
 class MoveTransaction(Transaction):
@@ -48,6 +39,11 @@ class MoveTransaction(Transaction):
         
         self._instructions=[prep(h) for h in files.get_list()]
 
+    @staticmethod
+    def _from_instructions(instructions:list)->MoveTransaction:
+        ans=MoveTransaction.__new__(MoveTransaction)
+        ans._instructions=instructions
+        return ans
 
     def execute(self, progress_callback: None | Callable[..., Any] = None) -> None | str:
         for h in self._instructions:
@@ -62,9 +58,14 @@ class MoveTransaction(Transaction):
             shutil.move(h[0],h[1])
         WorkspaceManager.rebuild_all()
 
-    def reversed(self)->MoveTransaction:
-        return MoveTransaction([(h[1],h[0]) for h in self._instructions])
+    def revert(self)->MoveTransaction:
+        return MoveTransaction._from_instructions([(h[1],h[0]) for h in self._instructions])
     
+class MoveSingleTransaction(MoveTransaction):
+    def __init__(self,path:str,new_path:str) -> None:
+        self._instructions=MoveTransaction._from_instructions([(path,new_path)])._instructions
+
+
 
 class CopyTransaction(Transaction):
     def __init__(self, files:Selection,new_path: str) -> None:
@@ -73,7 +74,11 @@ class CopyTransaction(Transaction):
         
         self._instructions=[prep(h) for h in files.get_list()]
 
-    
+    @staticmethod
+    def _from_instructions(instructions:list)->CopyTransaction:
+        ans=CopyTransaction.__new__(CopyTransaction)
+        ans._instructions=instructions
+        return ans
 
     def execute(self, progress_callback: None | Callable[..., Any] = None) -> None | str:
         for h in self._instructions:
@@ -92,5 +97,36 @@ class CopyTransaction(Transaction):
                 shutil.copy(h[0],h[1])
         WorkspaceManager.rebuild_all()
 
-    def reversed(self)->CopyTransaction:
-        return CopyTransaction([(h[1],h[0]) for h in self._instructions])
+    def revert(self)->CopyTransaction:
+        return RemoveTransaction(Selection([h[1] for h in self._instructions]))
+
+class DoNothingTransaction(Transaction):
+    def __init__(self) -> None:
+        super().__init__()
+    def execute(self, progress_callback: None | Callable[..., Any] = None) -> None | str:
+        pass
+    def revert(self) -> Transaction:
+        return DoNothingTransaction()
+
+class RemoveTransaction(Transaction):
+    def __init__(self,files:Selection) -> None:
+        self._files=files.get_list()
+        super().__init__()
+    def execute(self, progress_callback: None | Callable[..., Any] = None) -> None | str:
+        if (len(self._files)==0):
+            return "No files selected for removal"
+        for h in self._files:
+            if (not os.path.exists(h)):
+                return f"File {h} does not exist"
+            if (not os.access(os.path.dirname(h),os.W_OK)):
+                return f"Cannot delete file {h}"
+        
+        for h in self._files:
+            if (os.path.isdir(h)):
+                shutil.rmtree(h)
+            else:
+                os.remove(h)
+        WorkspaceManager.rebuild_all()
+
+    def revert(self)->DoNothingTransaction:
+        return DoNothingTransaction()

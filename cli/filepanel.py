@@ -1,7 +1,7 @@
 import asyncio
 import urwid
 from cli.error import ErrorWindow
-from logic.transactions import MoveTransaction
+from logic.transactions import MoveTransaction, RemoveTransaction
 from logic.workspace import *
 from cli.entry import *
 
@@ -49,6 +49,13 @@ class FilePanel(urwid.Filler):
         if (key=='esc'):
             Manager.set_lock(None)
         
+        if (key=='delete' and Manager.operation_mode=='normal'):
+            sel=self._workspace.get_selection()
+            asyncio.create_task(self._custom_data["TwoTabs"].execute_transaction(RemoveTransaction(sel)))
+            return None
+
+            
+
         if (key=='x' and Manager.operation_mode=="normal"):
             return self._start_selection("select_for_move")
             #self.contents[0][0]
