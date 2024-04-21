@@ -1,6 +1,7 @@
 import os
 import os.path
 
+from logic.permissions import FilePermissions
 from logic.subscriptable import Subscriptable
 
 class File(Subscriptable):
@@ -22,6 +23,9 @@ class File(Subscriptable):
         self._selected=value
         self.send_update()
         
+
+    def get_permissions(self)->list:
+        return FilePermissions.perms_from_stat(os.stat(self._path))
 
     def getFormattedSize(self)->str:
         sz=self.getSize()
@@ -48,3 +52,5 @@ class File(Subscriptable):
         return self._path
     def get_name(self)->str:
         return os.path.basename(self._path)
+    def get_directory(self)->str:
+        return os.path.dirname(self._path)

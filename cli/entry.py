@@ -2,6 +2,7 @@ import urwid
 
 import time
 
+from cli.props import PropertyWindow, PropertyWindowMock
 from logic.file import File
 from logic.workspace import Workspace
 
@@ -33,9 +34,10 @@ class TableEntry(urwid.Widget):
         return cols.render(size,focus)
 
 class FileEntry(TableEntry):
-    def __init__(self, data:File,pos:int,workspace:Workspace) -> None:
+    def __init__(self,custom_data, data:File,pos:int,workspace:Workspace) -> None:
         super().__init__(data)
         data.subscribe(self.rebuild)
+        self._custom_data=custom_data
         self.pos=pos
         self._lastClick=0
         self._workspace=workspace
@@ -70,6 +72,9 @@ class FileEntry(TableEntry):
         super().keypress(size,key)
         if (key=='enter'):
             self.step_in()
+        if (key=='f12'):
+            pw=PropertyWindow(self.data)
+            self._custom_data["viewstack_push_function"](pw)
         if (key==' '):
             self.data.setSelected(not self.data.getSelected())
             #self._invalidate()

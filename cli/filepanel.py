@@ -4,11 +4,12 @@ from cli.entry import *
 
 class FilePanel(urwid.Filler):
 
-    def __init__(self,workspace:Workspace,pos:int=0) -> None:
+    def __init__(self,custom_data,workspace:Workspace,pos:int=0) -> None:
         self._workspace=workspace
         self.pos=pos
+        self._custom_data=custom_data
         #temp=build_table(path)
-        lbx=urwid.ListBox([FileEntry(h,self.pos,workspace) for h in workspace.get_contents()])
+        lbx=urwid.ListBox([FileEntry(self._custom_data,h,self.pos,workspace) for h in workspace.get_contents()])
         super().__init__(lbx,height=20)
         self._lastClick=0
     
@@ -23,7 +24,7 @@ class FilePanel(urwid.Filler):
     
 
     def rebuild(self)->None:
-        lbx=urwid.ListBox([FileEntry(h,self.pos,self._workspace) for h in self._workspace.get_contents()])
+        lbx=urwid.ListBox([FileEntry(self._custom_data,h,self.pos,self._workspace) for h in self._workspace.get_contents()])
         self.body=lbx
         self._invalidate()
 

@@ -69,7 +69,7 @@ def build_list(fileEntries:iterable[file]) -> urwid.Filler:
     return ans
 
 #list=build_list(build_table())
-content=TwoTabs(active_workspaces)   
+content=TwoTabs({},active_workspaces)   
 top = urwid.Overlay(
     content,
     urwid.SolidFill("\N{MEDIUM SHADE}"),
@@ -82,7 +82,23 @@ top = urwid.Overlay(
 )
 
 
+def update(value:StackedView):
+    loop.widget=urwid.Overlay(
+        value,
+        urwid.SolidFill("\N{MEDIUM SHADE}"),
+        align=urwid.CENTER,
+        width=(urwid.RELATIVE, 85),
+        valign=urwid.MIDDLE,
+        height=(urwid.RELATIVE, 85),
+        min_width=20,
+        min_height=9,
+    )
+
+content.assign_prev(None,update)
 
 
-loop=urwid.MainLoop(top,palette=[("reversed", "standout", "")],unhandled_input=exit_on_q)
+loop=urwid.MainLoop(urwid.SolidFill('*'),palette=[("reversed", "standout", "")],unhandled_input=exit_on_q)
+
+update(content)
+
 loop.run()
