@@ -1,5 +1,6 @@
 import asyncio
 import urwid
+from cli.manager import Manager
 from cli.stackedview import StackedView
 from logic.file import *
 from logic.workspace import *
@@ -12,6 +13,8 @@ class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget,StackedView):
         return True
     def __init__(self,custom_data,active_workspaces) -> None:
         super().__init__()
+        
+        Manager.current_two_tabs=self
         self._updated_event=asyncio.Event()
 
         self._custom_data=custom_data
@@ -33,16 +36,26 @@ class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget,StackedView):
         self.contents[0][0].focus_position^=1
         return True
     
+    def amend_focus(self,pos:int)->None:
+         self.contents[0][0].focus_position=pos
+    def get_focus(self)->int:
+         return self.contents[0][0].focus_position
+
     def keypress(self,size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
         
         if key=='tab':
-            self.contents[0][0].focus_position^=1
+            if (Manager.get_lock()==None):
+                self.contents[0][0].focus_position^=1
 
         return self.contents[0][0].focus.keypress(size,key)
         
 
     def mouse_event(self,size: tuple[()] | tuple[int] | tuple[int, int], event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
-            return self.contents[0][0].mouse_event(size,event,button,col,row,True)
+        if (Manager.get_lock()==None):
+            return self.contents[0][0].contents[0][0].mouse_event(size,event,button,col,row,True)
+        else:
+            lck=Manager.get_lock()
+            return self.contents[0][0].contents[lck][0].mouse_event(size,event,button,col,row,True)
 
     def render(self, size: tuple[int,int], focus: bool = False) -> urwid.Canvas:
         (maxcol,maxrow) = size
