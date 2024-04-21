@@ -73,6 +73,7 @@ class CopyTransaction(Transaction):
         
         self._instructions=[prep(h) for h in files.get_list()]
 
+    
 
     def execute(self, progress_callback: None | Callable[..., Any] = None) -> None | str:
         for h in self._instructions:
@@ -83,8 +84,12 @@ class CopyTransaction(Transaction):
             if (not os.access(h[0],os.R_OK)):
                 return f"Cannot read file {h[0]}"
         
+        
         for h in self._instructions:
-            shutil.copy(h[0],h[1])
+            if (os.path.isdir(h[0])):
+                shutil.copytree(h[0],h[1])
+            else:
+                shutil.copy(h[0],h[1])
         WorkspaceManager.rebuild_all()
 
     def reversed(self)->CopyTransaction:

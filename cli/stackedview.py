@@ -1,4 +1,5 @@
 import asyncio
+
 class StackedView:
     def __init__(self) -> None:
         self._updated_event=asyncio.Event()
@@ -17,4 +18,3 @@ class StackedView:
     def pop_on_stack(self)->None:
         self._fun_for_stack(self._prev_in_stack)
         self._prev_in_stack.rebuild()
-

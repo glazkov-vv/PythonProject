@@ -1,6 +1,7 @@
 import asyncio
 import urwid
 from cli.error import ErrorWindow
+from cli.executestransactions import ExecutesTransactions
 from cli.manager import Manager
 from cli.stackedview import StackedView
 from logic.file import *
@@ -8,7 +9,7 @@ from logic.transactions import CopyTransaction
 from logic.workspace import *
 from cli.filepanel import *
 
-class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget,StackedView):
+class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget,ExecutesTransactions):
     _selectable=False
 
     def selectable(self)->bool:
@@ -47,10 +48,7 @@ class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget,StackedView):
     async def paste(self):
         Transaction=MoveTransaction if Manager.operation_mode=="select_for_move" else CopyTransaction
         transaction=Transaction(Manager.active_selection,Manager.active_workspaces[Manager.get_lock()].get_path())
-        res=transaction.execute()
-        if (res!=None):
-            self.push_on_stack(ErrorWindow(res))
-            await self._updated_event
+        await self.execute_transaction(transaction)
         Manager.set_lock(None)
         Manager.operation_mode="normal"
 

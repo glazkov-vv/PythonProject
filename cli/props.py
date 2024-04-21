@@ -2,6 +2,7 @@ import asyncio
 from typing_extensions import Literal
 import urwid
 from cli.error import ErrorWindow
+from cli.executestransactions import ExecutesTransactions
 from cli.stackedview import StackedView
 from logic.file import *
 from logic.transactions import ChangePermissionTransaction, MoveSingleTransaction, MoveTransaction
@@ -9,7 +10,7 @@ from logic.transactions import ChangePermissionTransaction, MoveSingleTransactio
 
 
 
-class PropertyWindow(urwid.Widget,StackedView):
+class PropertyWindow(urwid.Widget,ExecutesTransactions):
     def __init__(self,file:File) -> None:
         super().__init__()
         self._updated_event=asyncio.Event()
@@ -88,15 +89,10 @@ class PropertyWindow(urwid.Widget,StackedView):
 
         if (self.get_permissions()!=self._init_permissions):
             t1=ChangePermissionTransaction(self._file.getPath(),self._init_permissions,self.get_permissions())
-            res=t1.execute()
-            if (res):
-                self.push_on_stack(ErrorWindow(res))
-                await self._updated_event.wait()
+            await self.execute_transaction(t1)
         if (self.get_name()!=self._init_name):
             t2=MoveSingleTransaction(self._file.getPath(),os.path.join(self._file.get_directory(),self.get_name()))
-            res=t2.execute()
-            if (res):
-                self.push_on_stack(ErrorWindow(res))
+            await self.execute_transaction(t2)
                 
             
         self.pop_on_stack()
