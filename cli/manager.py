@@ -8,7 +8,7 @@ class Manager:
     _locked_on=None
     current_two_tabs=None
     active_workspaces:Iterable[Workspace]=[None,None]
-
+    operation_mode:Literal["normal","select_for_move","select_for_copy"]="normal"
     @classmethod
     def get_lock(cls)->None|int:
         return cls._locked_on

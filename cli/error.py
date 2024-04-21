@@ -20,3 +20,4 @@ class ErrorWindow(urwid.Filler,StackedView):
             self.pop_on_stack()
             return None
         return super().keypress(size, key)
+    

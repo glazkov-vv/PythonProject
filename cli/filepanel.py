@@ -32,21 +32,28 @@ class FilePanel(urwid.Filler):
         self._invalidate()
 
     
+    def _start_selection(self,mode)->None|str:
+        Manager.active_selection=self._workspace.get_selection()
+        if (Manager.active_selection.empty()):
+            async def fun():
+                self._custom_data["TwoTabs"].push_on_stack(ErrorWindow("No files selected"))
+                await self._custom_data["TwoTabs"]._updated_event.wait()
+            asyncio.create_task(fun())
+        else:
+            Manager.set_lock(self.pos^1)
+            Manager.operation_mode=mode
+        return None
+
+
     def keypress(self, size: tuple[int, int] | tuple[()], key: str) -> str | None:
         if (key=='esc'):
             Manager.set_lock(None)
         
-        if (key=='c'):
-            Manager.active_selection=self._workspace.get_selection()
-            if (Manager.active_selection.empty()):
-                async def fun():
-                    self._custom_data["TwoTabs"].push_on_stack(ErrorWindow("No files selected"))
-                    await self._custom_data["TwoTabs"]._updated_event.wait()
-                asyncio.create_task(fun())
-            else:
-                Manager.set_lock(self.pos^1)
-            return None
+        if (key=='x' and Manager.operation_mode=="normal"):
+            return self._start_selection("select_for_move")
             #self.contents[0][0]
+        if (key=='c' and Manager.operation_mode=="normal"):
+            return self._start_selection("select_for_copy")
 
         if (key=='left'):
             self._workspace.step_up()
