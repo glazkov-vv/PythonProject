@@ -1,4 +1,7 @@
+import asyncio
 import urwid
+from cli.error import ErrorWindow
+from logic.transactions import MoveTransaction
 from logic.workspace import *
 from cli.entry import *
 
@@ -28,7 +31,23 @@ class FilePanel(urwid.Filler):
         self.body=lbx
         self._invalidate()
 
+    
     def keypress(self, size: tuple[int, int] | tuple[()], key: str) -> str | None:
+        if (key=='esc'):
+            Manager.set_lock(None)
+        
+        if (key=='c'):
+            Manager.active_selection=self._workspace.get_selection()
+            if (Manager.active_selection.empty()):
+                async def fun():
+                    self._custom_data["TwoTabs"].push_on_stack(ErrorWindow("No files selected"))
+                    await self._custom_data["TwoTabs"]._updated_event.wait()
+                asyncio.create_task(fun())
+            else:
+                Manager.set_lock(self.pos^1)
+            return None
+            #self.contents[0][0]
+
         if (key=='left'):
             self._workspace.step_up()
             return None

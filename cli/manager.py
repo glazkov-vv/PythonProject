@@ -1,10 +1,13 @@
 from __future__ import annotations
+from typing import *
 
+from logic.workspace import Workspace
 
 
 class Manager:
-    _locked_on=0
+    _locked_on=None
     current_two_tabs=None
+    active_workspaces:Iterable[Workspace]=[None,None]
 
     @classmethod
     def get_lock(cls)->None|int:

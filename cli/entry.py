@@ -2,6 +2,7 @@ import urwid
 
 import time
 
+from cli.manager import Manager
 from cli.props import PropertyWindow, PropertyWindowMock
 from logic.file import File
 from logic.workspace import Workspace
@@ -72,10 +73,10 @@ class FileEntry(TableEntry):
         super().keypress(size,key)
         if (key=='enter'):
             self.step_in()
-        if (key=='f12'):
+        if (key=='f12' and Manager.get_lock()==None):
             pw=PropertyWindow(self.data)
             self._custom_data["viewstack_push_function"](pw)
-        if (key==' '):
+        if (key==' ' and Manager.get_lock()==None):
             self.data.setSelected(not self.data.getSelected())
             #self._invalidate()
         return super().keypress(size,key)

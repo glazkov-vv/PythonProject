@@ -3,6 +3,7 @@ import os.path
 from logic.file import *
 from typing import Iterable
 
+from logic.selection import Selection
 from logic.subscriptable import Subscriptable
 
 
@@ -26,6 +27,7 @@ class Workspace(Subscriptable):
         WorkspaceManager._instances.append(self)
     def rebuild(self)->None:
         self._contents=build_table(self.get_path())
+        self.send_update()
     def get_contents(self)->Iterable[File]:
         return self._contents
     def get_path(self)->str:
@@ -47,3 +49,6 @@ class Workspace(Subscriptable):
         self.rebuild()
         self.send_update()
     
+    def get_selection(self)->Selection:
+        return Selection([h.getPath() for h in self._contents if h.getSelected()])
+        

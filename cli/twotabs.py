@@ -1,5 +1,6 @@
 import asyncio
 import urwid
+from cli.error import ErrorWindow
 from cli.manager import Manager
 from cli.stackedview import StackedView
 from logic.file import *
@@ -19,8 +20,9 @@ class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget,StackedView):
 
         self._custom_data=custom_data
         self._custom_data["viewstack_push_function"]=self.push_on_stack
-        active_workspaces[0]=Workspace("/home")
-        active_workspaces[1]=Workspace("/home")
+        self._custom_data["TwoTabs"]=self
+
+        
         left=FilePanel(self._custom_data,active_workspaces[0],0)
         right=FilePanel(self._custom_data,active_workspaces[1],1)
         active_workspaces[0].subscribe(left.rebuild)
@@ -41,18 +43,31 @@ class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget,StackedView):
     def get_focus(self)->int:
          return self.contents[0][0].focus_position
 
+    async def paste(self):
+        transaction=MoveTransaction(Manager.active_selection,Manager.active_workspaces[Manager.get_lock()].get_path())
+        res=transaction.execute()
+        if (res!=None):
+            self.push_on_stack(ErrorWindow(res))
+            await self._updated_event
+        Manager.set_lock(None)
+
     def keypress(self,size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
         
+        if (key=='v'):
+            if (Manager.get_lock()!=None):
+                asyncio.create_task(self.paste())
+            return None
         if key=='tab':
             if (Manager.get_lock()==None):
                 self.contents[0][0].focus_position^=1
+            return None
 
         return self.contents[0][0].focus.keypress(size,key)
         
 
     def mouse_event(self,size: tuple[()] | tuple[int] | tuple[int, int], event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
         if (Manager.get_lock()==None):
-            return self.contents[0][0].contents[0][0].mouse_event(size,event,button,col,row,True)
+            return self.contents[0][0].mouse_event(size,event,button,col,row,True)
         else:
             lck=Manager.get_lock()
             return self.contents[0][0].contents[lck][0].mouse_event(size,event,button,col,row,True)

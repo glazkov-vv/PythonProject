@@ -47,7 +47,7 @@ lastTbx=0
 
 
 
-active_workspaces:iterable[workspace]=[None,None]
+
 
 
 
@@ -71,7 +71,10 @@ def build_list(fileEntries:iterable[file]) -> urwid.Filler:
     return ans
 
 #list=build_list(build_table())
-content=TwoTabs({},active_workspaces)   
+Manager.active_workspaces[0]=Workspace("/home/vladi/sandbox")
+Manager.active_workspaces[1]=Workspace("/home/vladi/sandbox")
+
+content=TwoTabs({},Manager.active_workspaces)   
 top = urwid.Overlay(
     content,
     urwid.SolidFill("\N{MEDIUM SHADE}"),

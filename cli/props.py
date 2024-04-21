@@ -4,7 +4,7 @@ import urwid
 from cli.error import ErrorWindow
 from cli.stackedview import StackedView
 from logic.file import *
-from logic.transactions import ChangePermissionTransaction, MoveTransaction
+from logic.transactions import ChangePermissionTransaction, MoveSingleTransaction, MoveTransaction
 
 
 
@@ -33,7 +33,7 @@ class PropertyWindow(urwid.Widget,StackedView):
             for j in range(3):
                 num=3*i+j
                 self._permissions_table.append(urwid.CheckBox(actions[j],permissions_values[num]))
-                in_btns.append(self._permissions_table[-1])
+                in_btns.append(self._permissions_table[len(self._permissions_table)-1])
             
             
             btn_rows.append(urwid.Columns(in_btns))
@@ -64,8 +64,10 @@ class PropertyWindow(urwid.Widget,StackedView):
     def keypress(self, size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
         if (key=="esc"):
             self.pop_on_stack()
+            return None
         if (key=="enter"):
             asyncio.create_task(self.apply())
+            return None
             #self.apply()
         val= self._content.keypress(size, key)
         return val
@@ -81,7 +83,7 @@ class PropertyWindow(urwid.Widget,StackedView):
 
     def rebuild(self)->None:
         pass
-    
+
     async def apply(self)->None:
 
         if (self.get_permissions()!=self._init_permissions):
@@ -91,7 +93,7 @@ class PropertyWindow(urwid.Widget,StackedView):
                 self.push_on_stack(ErrorWindow(res))
                 await self._updated_event.wait()
         if (self.get_name()!=self._init_name):
-            t2=MoveTransaction(self._file.getPath(),os.path.join(self._file.get_directory(),self.get_name()))
+            t2=MoveSingleTransaction(self._file.getPath(),os.path.join(self._file.get_directory(),self.get_name()))
             res=t2.execute()
             if (res):
                 self.push_on_stack(ErrorWindow(res))
