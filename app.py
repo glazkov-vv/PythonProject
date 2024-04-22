@@ -107,7 +107,7 @@ content.assign_prev(None,update)
 
 loop=urwid.MainLoop(content,palette=[("reversed", "standout", "")],unhandled_input=exit_on_q,event_loop=urwid.AsyncioEventLoop())
 never_event=asyncio.Event()
-
+Manager.loop=loop
 
 
 loop.run()

@@ -13,8 +13,9 @@ class ExecutesTransactions(StackedView):
         prog_wnd=None
         if (transaction.__class__.reports_progress()):
              prog_wnd=ProgressWindow()
+             transaction.set_callback(prog_wnd.callback)
              self.push_on_stack(prog_wnd)
-    
+
         res=await transaction.execute()
         if (prog_wnd!=None):
             prog_wnd.pop_on_stack()
