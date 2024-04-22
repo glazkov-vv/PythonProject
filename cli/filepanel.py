@@ -13,7 +13,7 @@ class FilePanel(urwid.Filler):
         self._custom_data=custom_data
         #temp=build_table(path)
         lbx=urwid.ListBox([FileEntry(self._custom_data,h,self.pos,workspace) for h in workspace.get_contents()])
-        super().__init__(lbx,height=20)
+        super().__init__(lbx,height=('relative',80))
         self._lastClick=0
     
     _path:str

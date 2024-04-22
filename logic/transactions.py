@@ -1,4 +1,5 @@
 from __future__ import annotations
+import asyncio
 import os
 import shutil
 from typing import *
@@ -9,10 +10,18 @@ from logic.workspace import WorkspaceManager
 class Transaction:
     def __init__(self) -> None:
         pass
-    def execute(self,progress_callback:None|Callable=None)->None|str:
+    async def execute(self,progress_callback:None|Callable=None)->None|str:
         raise NotImplementedError()
     def revert(self)->Transaction:
         raise NotImplementedError()
+    
+    @staticmethod
+    def reports_progress()->bool:
+        return False
+    
+    @staticmethod
+    def is_atomic()->bool:
+        return True
 
 class ChangePermissionTransaction(Transaction):
     def __init__(self,path:str,old_permissions:list,new_permissions:list) -> None:
@@ -21,7 +30,7 @@ class ChangePermissionTransaction(Transaction):
         self._new_permissions=new_permissions
     def revert(self) -> Transaction:
         return ChangePermissionTransaction(self._path,self._new_permissions,self._old_permissions)
-    def execute(self,progress_callback:None|Callable=None)->None|str:
+    async def execute(self,progress_callback:None|Callable=None)->None|str:
         try:
             os.chmod(self._path,FilePermissions.int_from_perms(self._new_permissions))
         except PermissionError:
@@ -45,7 +54,7 @@ class MoveTransaction(Transaction):
         ans._instructions=instructions
         return ans
 
-    def execute(self, progress_callback: None | Callable[..., Any] = None) -> None | str:
+    async def execute(self, progress_callback: None | Callable[..., Any] = None) -> None | str:
         for h in self._instructions:
             if (os.path.exists(h[1])):
                 return f"File {h[1]} already exists"
@@ -68,6 +77,14 @@ class MoveSingleTransaction(MoveTransaction):
 
 
 class CopyTransaction(Transaction):
+    @staticmethod
+    def is_atomic()->bool:
+        return False
+    
+    @staticmethod
+    def reports_progress() -> bool:
+        return True
+
     def __init__(self, files:Selection,new_path: str) -> None:
         def prep(val:str)->tuple[str,str]:
             return (val,os.path.join(new_path,os.path.basename(val)))
@@ -80,7 +97,7 @@ class CopyTransaction(Transaction):
         ans._instructions=instructions
         return ans
 
-    def execute(self, progress_callback: None | Callable[..., Any] = None) -> None | str:
+    async def execute(self, progress_callback: None | Callable[..., Any] = None) -> None | str:
         for h in self._instructions:
             if (os.path.exists(h[1])):
                 return f"File {h[1]} already exists"
@@ -90,11 +107,15 @@ class CopyTransaction(Transaction):
                 return f"Cannot read file {h[0]}"
         
         
-        for h in self._instructions:
-            if (os.path.isdir(h[0])):
-                shutil.copytree(h[0],h[1])
-            else:
-                shutil.copy(h[0],h[1])
+        def real_op():
+            for h in self._instructions:
+                if (os.path.isdir(h[0])):
+                    shutil.copytree(h[0],h[1])
+                else:
+                    shutil.copy(h[0],h[1])
+        
+        await asyncio.to_thread(real_op)
+
         WorkspaceManager.rebuild_all()
 
     def revert(self)->CopyTransaction:
@@ -103,7 +124,7 @@ class CopyTransaction(Transaction):
 class DoNothingTransaction(Transaction):
     def __init__(self) -> None:
         super().__init__()
-    def execute(self, progress_callback: None | Callable[..., Any] = None) -> None | str:
+    async def execute(self, progress_callback: None | Callable[..., Any] = None) -> None | str:
         pass
     def revert(self) -> Transaction:
         return DoNothingTransaction()
@@ -112,7 +133,7 @@ class RemoveTransaction(Transaction):
     def __init__(self,files:Selection) -> None:
         self._files=files.get_list()
         super().__init__()
-    def execute(self, progress_callback: None | Callable[..., Any] = None) -> None | str:
+    async def execute(self, progress_callback: None | Callable[..., Any] = None) -> None | str:
         if (len(self._files)==0):
             return "No files selected for removal"
         for h in self._files:

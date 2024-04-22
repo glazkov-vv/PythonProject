@@ -1,5 +1,6 @@
 from cli.error import ErrorWindow
 from cli.manager import Manager
+from cli.progress import ProgressWindow
 from cli.stackedview import StackedView
 from logic.transactions import Transaction
 
@@ -9,7 +10,15 @@ class ExecutesTransactions(StackedView):
         super().__init__()
 
     async def execute_transaction(self,transaction:Transaction,is_cancellation=False)->None:
-        res=transaction.execute()
+        prog_wnd=None
+        if (transaction.__class__.reports_progress()):
+             prog_wnd=ProgressWindow()
+             self.push_on_stack(prog_wnd)
+    
+        res=await transaction.execute()
+        if (prog_wnd!=None):
+            prog_wnd.pop_on_stack()
+
         if (res!=None):
             self.push_on_stack(ErrorWindow(res))
             await self._updated_event.wait()

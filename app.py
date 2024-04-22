@@ -100,12 +100,16 @@ def update(value:StackedView):
         min_width=20,
         min_height=9,
     )
+    loop.draw_screen()
 
 content.assign_prev(None,update)
 
 
-loop=urwid.MainLoop(urwid.SolidFill('*'),palette=[("reversed", "standout", "")],unhandled_input=exit_on_q,event_loop=urwid.AsyncioEventLoop())
+loop=urwid.MainLoop(content,palette=[("reversed", "standout", "")],unhandled_input=exit_on_q,event_loop=urwid.AsyncioEventLoop())
+never_event=asyncio.Event()
 
-update(content)
+
 
 loop.run()
+#while (True):
+ #   pass
