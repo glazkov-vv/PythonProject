@@ -1,11 +1,16 @@
+from collections.abc import Hashable
+from typing_extensions import Literal
 import urwid
-
+import asyncio
 import time
 
+from cli.error import ErrorWindow
 from cli.manager import Manager
 from cli.props import PropertyWindow, PropertyWindowMock
 from logic.file import File
 from logic.workspace import Workspace
+
+
 
 
 class TableEntry(urwid.Widget):
@@ -17,33 +22,93 @@ class TableEntry(urwid.Widget):
     def __init__(self,data) -> None:
         super().__init__()
         self.data=data
+        self._columnContent=[]
+        ops=self.data
+        for (method,sz,type) in self.__class__.schema:
+            if (type=='content'):
+                value=ops.__getattribute__(method)()
+                text=urwid.Text(value,wrap='ellipsis')
+                self._columnContent.append(('weight',sz,text))
+            elif (type =='method'):
+                self._columnContent.append(('weight',sz,self.__getattribute__(method)()))
+        
+        self._columns=urwid.Columns(self._columnContent)
+        self._columns=urwid.AttrMap(self._columns,None,"reversed")
+    
+
+    def reload_data(self):
+        i=0
+        ops=self.data
+        for (method,sz,type) in self.__class__.schema:
+            if (type=='content'):
+                self._columnContent[i][2].set_text(ops.__getattribute__(method)())
+            elif (type =='method'):
+                self._columnContent[i][2].update_data()
+            i+=1
 
     def render(self, size: tuple[int], focus: bool = False) -> urwid.Canvas:
         (maxcol,) = size
+        self.reload_data()
         
-        ops=self.data
-        
-        columnContent=[]
-        for (method,sz) in self.__class__.schema:
-            value=ops.__getattribute__(method)()
-            text=urwid.Text(value,wrap='ellipsis')
-            columnContent.append(('weight',sz,text))
-        
-        cols=urwid.Columns(columnContent)
-        cols=urwid.AttrMap(cols,None,"reversed")
 
-        return cols.render(size,focus)
+        return self._columns.render(size,focus)
+
+class Selectable(urwid.Text):
+    def __init__(self, custom_data:dict) -> None:
+        self._custom_data=custom_data.copy()
+        super().__init__("(*)" if self._custom_data["FileEntry"].is_selected() else "( )",align='center')
+
+    _selectable=True
+
+    def update_data(self):
+        super().set_text("(*)" if self._custom_data["FileEntry"].is_selected() else "( )")
+    
+    def mouse_event(self, size: tuple[()] | tuple[int] | tuple[int, int], event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
+       if (button==1 and event=='mouse press'):
+            self._custom_data["FileEntry"].revert_selection()
+    
+    def selectable(self) -> bool:
+        return True
+
+class FileName(urwid.AttrMap):
+    def __init__(self, custom_data:dict) -> None:
+        self._custom_data=custom_data.copy()
+        text=urwid.Text(self._custom_data["FileEntry"].data.get_name(),align='left')
+        super().__init__(text,"light green" if self._custom_data["FileEntry"].data.is_executable() else None,None)
+
+
+    def update_data(self):
+        self.base_widget.set_text(self._custom_data["FileEntry"].data.get_name())
+        self.set_attr_map({None:"light green" if self._custom_data["FileEntry"].data.is_executable() else None})
+
+
 
 class FileEntry(TableEntry):
     def __init__(self,custom_data, data:File,pos:int,workspace:Workspace) -> None:
-        super().__init__(data)
         data.subscribe(self.rebuild)
-        self._custom_data=custom_data
+        self._custom_data=custom_data.copy()
         self.pos=pos
         self._lastClick=0
         self._workspace=workspace
+        self._custom_data["FileEntry"]=self
+        super().__init__(data)
 
-    schema=[("getPath",4),("getFormattedSize",1),("getSelectedFormatted",0.5)]
+
+
+    def is_selected(self)->bool:
+        return self.data.getSelected()
+
+    def get_selectable(self)->Selectable:
+        return Selectable(self._custom_data)
+    
+    def get_file_name(self)->FileName:
+        return FileName(self._custom_data)
+    
+    schema=[("getPath",4,'content'),("getFormattedSize",1,'content'),("get_selectable",0.5,'method')]
+
+    def revert_selection(self)->None:
+        self.data.setSelected(not self.data.getSelected())
+
 
     def doubleClick(self)->None:
         self.step_in()
@@ -61,13 +126,19 @@ class FileEntry(TableEntry):
         
        if (not focus and self.data.isDir()):
            pass
+       
            #raise urwid.ExitMainLoop()
+       return self._columns.mouse_event(size,event,button,col,row,focus)
+    
 
     def step_in(self)->None:
+        
         if (self.data.isDir()):
             #content.update(self.data.getPath(),self.pos)
-            self._workspace.step_in(self.data.getPath())
-    
+            res=self._workspace.step_in(self.data.getPath())
+            if (res!=None):
+                self._custom_data["TwoTabs"].push_on_stack(ErrorWindow(res))
+        
 
     def keypress(self,size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
         super().keypress(size,key)
@@ -77,6 +148,6 @@ class FileEntry(TableEntry):
             pw=PropertyWindow(self.data)
             self._custom_data["viewstack_push_function"](pw)
         if (key==' ' and Manager.get_lock()==None):
-            self.data.setSelected(not self.data.getSelected())
+            self.revert_selection()
             #self._invalidate()
         return super().keypress(size,key)

@@ -14,8 +14,7 @@ class File(Subscriptable):
     def getSize(self)->int | None:
         return os.path.getsize(self._path)
     
-    def getSelectedFormatted(self)->str:
-        return "(*)" if self._selected else "( )"
+    
     def getSelected(self)->bool:
         return self._selected
 
@@ -41,6 +40,10 @@ class File(Subscriptable):
     def isDir(self)->bool:
         return os.path.isdir(self._path)
 
+
+    def is_executable(self)->bool:
+        return os.access(self._path,os.EX_OK)
+
     @staticmethod
     def fromPath(path:str)->str:
         file=File()
@@ -54,3 +57,4 @@ class File(Subscriptable):
         return os.path.basename(self._path)
     def get_directory(self)->str:
         return os.path.dirname(self._path)
+    

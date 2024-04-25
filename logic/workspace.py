@@ -40,15 +40,19 @@ class Workspace(Subscriptable):
     """ def set_callback_object(self,value:object)->None:
         self._callback_object=value """
 
-    def step_up(self)->None:
-        self._path=os.path.dirname(self._path)
-        self.rebuild()
-        self.send_update()
-    def step_in(self,path)->None:
+    
+    def step_in(self,path)->None|str:
+        if (not os.access(path,os.R_OK)):
+            return "Insufficient permissions to read the directory"
+
         self._path=path
         self.rebuild()
         self.send_update()
     
+    def step_up(self)->None|str:
+        return self.step_in(os.path.dirname(self._path))
+        
+        
     def get_selection(self)->Selection:
         return Selection([h.getPath() for h in self._contents if h.getSelected()])
         

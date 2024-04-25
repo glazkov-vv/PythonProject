@@ -18,6 +18,9 @@ class FilePanel(urwid.Filler):
     
     _path:str
 
+
+    
+
     def getPath(self)->str:
         return self._workspace.get_path()
     """ def update(self)->None:
@@ -63,8 +66,11 @@ class FilePanel(urwid.Filler):
             return self._start_selection("select_for_copy")
 
         if (key=='left'):
-            self._workspace.step_up()
+            res=self._workspace.step_up()
+            if (res!=None):
+                asyncio.create_task(self._custom_data["TwoTabs"].push_on_stack(ErrorWindow(res)))
             return None
+        
         return super().keypress(size, key)
 
     def doubleClick():
