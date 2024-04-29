@@ -105,7 +105,11 @@ def update(value:StackedView):
 content.assign_prev(None,update)
 
 
-loop=urwid.MainLoop(content,palette=[("reversed", "standout", "")],unhandled_input=exit_on_q,event_loop=urwid.AsyncioEventLoop())
+loop=urwid.MainLoop(content,palette=[("reversed", "standout", ""),
+                                     ("execs","light green",'default'),
+                                     ("rev execs","light green","light gray"),
+                                     ("folds","dark blue","default"),
+                                     ("rev folds","dark blue","light gray")],unhandled_input=exit_on_q,event_loop=urwid.AsyncioEventLoop())
 never_event=asyncio.Event()
 Manager.loop=loop
 

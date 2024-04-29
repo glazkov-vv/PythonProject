@@ -71,16 +71,26 @@ class Selectable(urwid.Text):
         return True
 
 class FileName(urwid.AttrMap):
+    def get_normal(self)->str:
+        return self._custom_data["FileEntry"].get_color()
+    def get_focused(self)->str:
+        return "rev "+self.get_normal()
     def __init__(self, custom_data:dict) -> None:
         self._custom_data=custom_data.copy()
-        text=urwid.Text(self._custom_data["FileEntry"].data.get_name(),align='left')
-        super().__init__(text,"light green" if self._custom_data["FileEntry"].data.is_executable() else None,None)
+        text = urwid.Text(self._custom_data["FileEntry"].data.get_name(),wrap='ellipsis')
+        super().__init__(text,self.get_normal(),self.get_focused())
+        
 
+    _selectable:False
+
+    def selectable(self) -> bool:
+        return False
 
     def update_data(self):
+        pass
         self.base_widget.set_text(self._custom_data["FileEntry"].data.get_name())
-        self.set_attr_map({None:"light green" if self._custom_data["FileEntry"].data.is_executable() else None})
-
+        self.set_attr_map({None:self.get_normal()})
+        self.set_focus_map({None:self.get_focused()})
 
 
 class FileEntry(TableEntry):
@@ -104,7 +114,7 @@ class FileEntry(TableEntry):
     def get_file_name(self)->FileName:
         return FileName(self._custom_data)
     
-    schema=[("getPath",4,'content'),("getFormattedSize",1,'content'),("get_selectable",0.5,'method')]
+    schema=[("get_file_name",4,'method'),("getFormattedSize",1,'content'),("get_selectable",0.5,'method')]
 
     def revert_selection(self)->None:
         self.data.setSelected(not self.data.getSelected())
@@ -130,6 +140,12 @@ class FileEntry(TableEntry):
            #raise urwid.ExitMainLoop()
        return self._columns.mouse_event(size,event,button,col,row,focus)
     
+
+    def get_color(self)->str:
+        if (self.data.isDir()):
+            return "folds"
+        if (self.data.is_executable()):
+            return "execs"
 
     def step_in(self)->None:
         

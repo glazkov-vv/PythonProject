@@ -47,6 +47,7 @@ class FilePanel(urwid.Filler):
             Manager.operation_mode=mode
         return None
 
+    
 
     def keypress(self, size: tuple[int, int] | tuple[()], key: str) -> str | None:
         if (key=='esc'):
