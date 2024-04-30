@@ -45,12 +45,15 @@ class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget,ExecutesTransactions):
     def get_focus(self)->int:
          return self.contents[0][0].focus_position
 
+    def set_normal_mode(self):
+        Manager.set_lock(None)
+        Manager.operation_mode="normal" 
+
     async def paste(self):
         Transaction=MoveTransaction if Manager.operation_mode=="select_for_move" else CopyTransaction
         transaction=Transaction(Manager.active_selection,Manager.active_workspaces[Manager.get_lock()].get_path())
         await self.execute_transaction(transaction)
-        Manager.set_lock(None)
-        Manager.operation_mode="normal"
+        self.set_normal_mode()
 
     def keypress(self,size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
         if (key=="z"):
@@ -60,7 +63,9 @@ class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget,ExecutesTransactions):
                     asyncio.create_task(self.execute_transaction(val,True))
                 
                 return None
-        
+        if (key=="esc" and Manager.operation_mode!='normal'):
+            self.set_normal_mode()
+            return None
 
         if (key=='f5'):
             if (Manager.operation_mode=="normal"):
