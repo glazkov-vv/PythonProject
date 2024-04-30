@@ -5,7 +5,7 @@ import shutil
 from typing import *
 from logic.permissions import FilePermissions
 from logic.selection import Selection
-from logic.workspace import WorkspaceManager
+from logic.workspacemanager import WorkspaceManager
 
 class Transaction:
     def __init__(self) -> None:
@@ -19,10 +19,7 @@ class Transaction:
     def reports_progress()->bool:
         return False
     
-    @staticmethod
-    def is_atomic()->bool:
-        return True
-
+    
 class ChangePermissionTransaction(Transaction):
     def __init__(self,path:str,old_permissions:list,new_permissions:list) -> None:
         self._path=path
@@ -92,10 +89,7 @@ class MoveSingleTransaction(MoveTransaction):
 
 
 class CopyTransaction(Transaction):
-    @staticmethod
-    def is_atomic()->bool:
-        return False
-    
+   
     @staticmethod
     def reports_progress() -> bool:
         return True
@@ -129,7 +123,7 @@ class CopyTransaction(Transaction):
                 try:
                     walkres=os.walk(h[0])
                 except:
-                    return f"Permissoin error while traversing directory {h[0]}"
+                    return f"Permission error while traversing directory {h[0]}"
                 for hh in walkres:
                     for hhh in hh[2]+hh[1]:
                         if (not os.access(os.path.join(hh[0],hhh),os.R_OK)):

@@ -11,11 +11,6 @@ def build_table(path=None)->Iterable[File]:
     return [File.fromPath(os.path.join("" if path is None else path,h)) for h in listdir(path)]
 
 
-class WorkspaceManager:
-    _instances=[]
-    def rebuild_all()->None:
-        for h in WorkspaceManager._instances:
-            h.rebuild()
 
 class Workspace(Subscriptable):
     def __del__(self)->None:
@@ -42,7 +37,7 @@ class Workspace(Subscriptable):
 
     
     def step_in(self,path)->None|str:
-        if (not os.access(path,os.R_OK)):
+        if (not os.access(path,os.X_OK) or not os.access(path,os.R_OK)):
             return "Insufficient permissions to read the directory"
 
         self._path=path

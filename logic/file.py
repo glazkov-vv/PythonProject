@@ -1,8 +1,19 @@
 import os
 import os.path
 
+from logic.workspacemanager import WorkspaceManager
 from logic.permissions import FilePermissions
 from logic.subscriptable import Subscriptable
+
+def possiblePermissionError(fun):
+    def wrapper(*args,**kwargs):
+        try:
+            return fun(*args,**kwargs)
+        except PermissionError:
+            return "***"
+
+    return wrapper
+        
 
 class File(Subscriptable):
     _path:str
@@ -11,6 +22,9 @@ class File(Subscriptable):
     def __init__(self) -> None:
         super().__init__()
     
+    
+
+    @possiblePermissionError
     def getSize(self)->int | None:
         return os.path.getsize(self._path)
     
