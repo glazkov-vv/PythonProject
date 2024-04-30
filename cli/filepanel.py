@@ -5,20 +5,32 @@ from logic.transactions import MoveTransaction, RemoveTransaction
 from logic.workspace import *
 from cli.entry import *
 
+def sigtest():
+    pass
+
 class FilePanel(urwid.Filler):
+
+
 
     def __init__(self,custom_data,workspace:Workspace,pos:int=0) -> None:
         self._workspace=workspace
         self.pos=pos
-        self._custom_data=custom_data
+        self._custom_data=custom_data.copy()
+        self._custom_data["FilePanel"]=self
+        self._infocus=None
         #temp=build_table(path)
+
         lbx=urwid.ListBox([FileEntry(self._custom_data,h,self.pos,workspace) for h in workspace.get_contents()])
         super().__init__(lbx,height=('relative',80))
         self._lastClick=0
     
     _path:str
 
-
+    def report_focus(self,child:urwid.Widget):
+        if (self._infocus!=child):
+            if (self._infocus!=None):
+                self._infocus.clear_focus()
+            self._infocus=child
     
 
     def getPath(self)->str:
@@ -73,6 +85,8 @@ class FilePanel(urwid.Filler):
             return None
         
         return super().keypress(size, key)
+
+    
 
     def doubleClick():
         pass

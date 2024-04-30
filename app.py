@@ -105,7 +105,8 @@ def update(value:StackedView):
 content.assign_prev(None,update)
 
 
-loop=urwid.MainLoop(content,palette=[("reversed", "standout", ""),
+loop=urwid.MainLoop(content,palette=[("normal","default","default"),
+                                     ("reversed", "standout", ""),
                                      ("execs","light green",'default'),
                                      ("rev execs","light green","light gray"),
                                      ("folds","dark blue","default"),

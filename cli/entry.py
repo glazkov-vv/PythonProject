@@ -33,7 +33,7 @@ class TableEntry(urwid.Widget):
                 self._columnContent.append(('weight',sz,self.__getattribute__(method)()))
         
         self._columns=urwid.Columns(self._columnContent)
-        self._columns=urwid.AttrMap(self._columns,None,"reversed")
+        self._columns=urwid.AttrMap(self._columns,"normal","reversed")
     
 
     def reload_data(self):
@@ -49,8 +49,6 @@ class TableEntry(urwid.Widget):
     def render(self, size: tuple[int], focus: bool = False) -> urwid.Canvas:
         (maxcol,) = size
         self.reload_data()
-        
-
         return self._columns.render(size,focus)
 
 class Selectable(urwid.Text):
@@ -69,28 +67,33 @@ class Selectable(urwid.Text):
     
     def selectable(self) -> bool:
         return True
+    def render(self, size: tuple[int] | tuple[()], focus: bool = False) -> urwid.TextCanvas:
+        return super().render(size, focus)
 
-class FileName(urwid.AttrMap):
+class FileName(urwid.Widget):
+    def rows(self,size,focus):
+        return 1
     def get_normal(self)->str:
         return self._custom_data["FileEntry"].get_color()
     def get_focused(self)->str:
         return "rev "+self.get_normal()
     def __init__(self, custom_data:dict) -> None:
+        super().__init__()
         self._custom_data=custom_data.copy()
-        text = urwid.Text(self._custom_data["FileEntry"].data.get_name(),wrap='ellipsis')
-        super().__init__(text,self.get_normal(),self.get_focused())
+        self._text=urwid.Text(self._custom_data["FileEntry"].data.get_name(),wrap='ellipsis')
         
+    def update_data(self):
+        self._text=urwid.Text(self._custom_data["FileEntry"].data.get_name(),wrap='ellipsis')
 
     _selectable:False
 
     def selectable(self) -> bool:
         return False
 
-    def update_data(self):
-        pass
-        self.base_widget.set_text(self._custom_data["FileEntry"].data.get_name())
-        self.set_attr_map({None:self.get_normal()})
-        self.set_focus_map({None:self.get_focused()})
+    def render(self, size: tuple[int] | tuple[()], focus: bool = False) -> urwid.TextCanvas:
+        mp=urwid.AttrMap(self._text,{None:(self.get_focused() if self._custom_data["FileEntry"].focused else self.get_normal())})
+        return mp.render(size,focus)
+        
 
 
 class FileEntry(TableEntry):
@@ -101,10 +104,12 @@ class FileEntry(TableEntry):
         self._lastClick=0
         self._workspace=workspace
         self._custom_data["FileEntry"]=self
+        self.focused=False
         super().__init__(data)
 
 
 
+    
     def is_selected(self)->bool:
         return self.data.getSelected()
 
@@ -167,3 +172,13 @@ class FileEntry(TableEntry):
             self.revert_selection()
             #self._invalidate()
         return super().keypress(size,key)
+
+    def render(self, size: tuple[int], focus: bool = False) -> urwid.Canvas:
+        inv=False
+        if (self.focused!=focus):
+            inv=True
+        self.focused=focus
+        if inv:
+            for h in self._columnContent:
+                h[2]._invalidate()
+        return super().render(size, focus)
