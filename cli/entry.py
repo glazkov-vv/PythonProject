@@ -102,13 +102,13 @@ class Title(urwid.AttrMap):
     def selectable(self) -> bool:
         return True
     
-    def get_state(self):
+    def get_state(self)->None|Literal["asc","desc"]:
         prop,type= self._custom_data["FilePanel"].get_sort()
         if (prop==self._prop):
             return type
         return None
 
-    def update(self):
+    def update(self)->None:
         self._text.set_text(self.get_text())
         self._invalidate()
 
@@ -124,7 +124,7 @@ class Title(urwid.AttrMap):
             temp+=" ↓"
         return temp
     
-    def next_state(self):
+    def next_state(self)->None:
         ctype=self.get_state()
         
         self._custom_data["Workspace"].set_sort(self._prop,"asc" if ctype!="asc" else "desc")
@@ -134,13 +134,22 @@ class Title(urwid.AttrMap):
             self.next_state()
        return super().keypress(size,key)
 
+    def double_click(self):
+        self.next_state()
+
+    def mouse_event(self, size: tuple[()] | tuple[int] | tuple[int, int], event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
+        if (event=="mouse press" and button==1):
+            if (time.time()-self._last_click<0.2):
+                self.double_click()
+            self._last_click=time.time()
+        return super().mouse_event(size,event,button,col,row,focus)
 
     def __init__(self,custom_data, name:str,property:str, callback:Callable) -> None:
         self._custom_data=custom_data.copy()
         self._name=name
         self._prop=property
         self._state:Literal["asc","desc"]|None=None
-    
+        self._last_click=0
         self._text=urwid.Text(self.get_text())
         super().__init__(self._text,"default","reversed")
 

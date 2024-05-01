@@ -44,6 +44,7 @@ class FilePanel(urwid.Filler):
         lbx=urwid.ListBox([FileEntry(h,self.pos) for h in temp])
         self.body=lbx """
     
+    
 
     def rebuild(self,in_focus=None)->None:
         lbx=urwid.ListBox([TitleEntry(self._custom_data)]+[FileEntry(self._custom_data,h,self.pos,self._workspace) for h in self._workspace.get_contents()])

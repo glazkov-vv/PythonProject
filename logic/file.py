@@ -4,6 +4,8 @@ import os.path
 from logic.workspacemanager import WorkspaceManager
 from logic.permissions import FilePermissions
 from logic.subscriptable import Subscriptable
+import humanize
+
 
 def possiblePermissionError(fun):
     def wrapper(*args,**kwargs):
@@ -41,15 +43,7 @@ class File(Subscriptable):
         return FilePermissions.perms_from_stat(os.stat(self._path))
 
     def getFormattedSize(self)->str:
-        sz=self.getSize()
-        if sz is None:
-           return ""
-        sfx=["bytes","KB","MB","GB","TB"]
-        pos=0
-        while sz>=1024:
-            sz/=1024
-            pos+=1
-        return "{:.2f}".format(sz)+" "+sfx[pos]
+        return humanize.naturalsize(self.getSize())
     
     def isDir(self)->bool:
         return os.path.isdir(self._path)
