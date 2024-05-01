@@ -17,6 +17,7 @@ class FilePanel(urwid.Filler):
         self.pos=pos
         self._custom_data=custom_data.copy()
         self._custom_data["FilePanel"]=self
+        self._custom_data["Workspace"]=workspace
         self._infocus=None
         #temp=build_table(path)
 
@@ -44,11 +45,20 @@ class FilePanel(urwid.Filler):
         self.body=lbx """
     
 
-    def rebuild(self)->None:
+    def rebuild(self,in_focus=None)->None:
         lbx=urwid.ListBox([TitleEntry(self._custom_data)]+[FileEntry(self._custom_data,h,self.pos,self._workspace) for h in self._workspace.get_contents()])
         self.body=lbx
+
+        if (in_focus!=None):
+            def calc_by_name(widget,name):
+                for i in range(len(widget.contents)):
+                    h=widget.contents[i][0]
+                    if (h._prop==name):
+                        return i
+            ops=[0,0,calc_by_name(self.body.body.contents[0].contents[0][0],in_focus)]
+            self.body.set_focus_path(ops)
         self._invalidate()
-    
+
     
     def _start_selection(self,mode)->None|str:
         Manager.active_selection=self._workspace.get_selection()

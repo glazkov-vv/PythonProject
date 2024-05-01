@@ -125,15 +125,14 @@ class Title(urwid.AttrMap):
         return temp
     
     def next_state(self):
-        cprop,ctype=self.get_state()
-        if cprop!=self._prop:
-            Workspace.set_sort(self._prop,"asc")
-        Workspace.set_sort(self._prop,"asc" if ctype!="asc" else "desc")
+        ctype=self.get_state()
+        
+        self._custom_data["Workspace"].set_sort(self._prop,"asc" if ctype!="asc" else "desc")
 
     def keypress(self, size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
-        if (key==" "):
+       if (key==" "):
             self.next_state()
-        return None
+       return super().keypress(size,key)
 
 
     def __init__(self,custom_data, name:str,property:str, callback:Callable) -> None:

@@ -20,6 +20,7 @@ class Workspace(Subscriptable):
         super().__init__()
         self._path=path
         self._sort=("name","asc")
+        self._contents:list=None
         self.rebuild()
         WorkspaceManager._instances.append(self)
     def rebuild(self)->None:
@@ -34,10 +35,13 @@ class Workspace(Subscriptable):
         return self._sort
 
     def set_sort(self,prop:str,type:Literal["asc","desc"]):
-        assert(prop in [h[0] for h in File.props])
-        assert(type in ["asc","desc"])
+        #assert(prop in [h[0] for h in File.props])
+        #assert(type in ["asc","desc"])
         self._sort=(prop,type)
-        self.send_update()
+
+        self._contents.sort(key=lambda x: File.props[prop](x),reverse=type=="desc")
+
+        self.send_update(prop)
 
     """ def update_view(self)->None:
         if self._callback_object is not None:
