@@ -20,11 +20,14 @@ class FilePanel(urwid.Filler):
         self._infocus=None
         #temp=build_table(path)
 
-        lbx=urwid.ListBox([FileEntry(self._custom_data,h,self.pos,workspace) for h in workspace.get_contents()])
+        lbx=urwid.ListBox([TitleEntry(self._custom_data)]+[FileEntry(self._custom_data,h,self.pos,workspace) for h in workspace.get_contents()])
         super().__init__(lbx,height=('relative',80))
         self._lastClick=0
     
     _path:str
+
+    def get_sort(self)->tuple[None|str,None|Literal["asc","desc"]]:
+        return self._workspace.get_sort()
 
     def report_focus(self,child:urwid.Widget):
         if (self._infocus!=child):
@@ -42,10 +45,10 @@ class FilePanel(urwid.Filler):
     
 
     def rebuild(self)->None:
-        lbx=urwid.ListBox([FileEntry(self._custom_data,h,self.pos,self._workspace) for h in self._workspace.get_contents()])
+        lbx=urwid.ListBox([TitleEntry(self._custom_data)]+[FileEntry(self._custom_data,h,self.pos,self._workspace) for h in self._workspace.get_contents()])
         self.body=lbx
         self._invalidate()
-
+    
     
     def _start_selection(self,mode)->None|str:
         Manager.active_selection=self._workspace.get_selection()

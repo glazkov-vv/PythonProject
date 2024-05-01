@@ -72,3 +72,4 @@ class File(Subscriptable):
     def get_directory(self)->str:
         return os.path.dirname(self._path)
     
+    props={"name":get_name,"size":getSize}

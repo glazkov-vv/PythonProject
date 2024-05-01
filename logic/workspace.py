@@ -18,6 +18,7 @@ class Workspace(Subscriptable):
     def __init__(self,path) -> None:
         super().__init__()
         self._path=path
+        self._sort=("name","asc")
         self.rebuild()
         WorkspaceManager._instances.append(self)
     def rebuild(self)->None:
@@ -28,6 +29,9 @@ class Workspace(Subscriptable):
     def get_path(self)->str:
         return self._path
     
+    def get_sort(self):
+        return self._sort
+
     """ def update_view(self)->None:
         if self._callback_object is not None:
             self._callback_object.update_from_top() """
@@ -50,4 +54,5 @@ class Workspace(Subscriptable):
         
     def get_selection(self)->Selection:
         return Selection([h.getPath() for h in self._contents if h.getSelected()])
-        
+    
+    

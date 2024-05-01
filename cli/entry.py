@@ -1,4 +1,7 @@
 from collections.abc import Hashable
+from typing import Iterable, Mapping
+from typing import Callable
+
 from typing_extensions import Literal
 import urwid
 import asyncio
@@ -95,6 +98,47 @@ class FileName(urwid.Widget):
         return mp.render(size,focus)
         
 
+class Title(urwid.AttrMap):
+    def selectable(self) -> bool:
+        return True
+    
+    def get_state(self):
+        prop,type= self._custom_data["FilePanel"].get_sort()
+        if (prop==self._prop):
+            return type
+        return None
+
+    def update(self):
+        self._text.set_text(self.get_text())
+        self._invalidate()
+
+    def cancel_state(self)->None:
+        self._state=None
+        self._invalidate()
+
+    def get_text(self)->str:
+        temp = self._name
+        if (self.get_state()=="asc"):
+            temp+=" ↑"
+        if (self.get_state()=="desc"):
+            temp+=" ↓"
+        return temp
+    
+
+
+    def __init__(self,custom_data, name:str,property:str, callback:Callable) -> None:
+        self._custom_data=custom_data.copy()
+        self._name=name
+        self._prop=property
+        self._state:Literal["asc","desc"]|None=None
+    
+        self._text=urwid.Text(self.get_text())
+        super().__init__(self._text,"default","reversed")
+
+
+        
+
+        
 
 class FileEntry(TableEntry):
     def __init__(self,custom_data, data:File,pos:int,workspace:Workspace) -> None:
@@ -120,6 +164,7 @@ class FileEntry(TableEntry):
         return FileName(self._custom_data)
     
     schema=[("get_file_name",4,'method'),("getFormattedSize",1,'content'),("get_selectable",0.5,'method')]
+    title_schema=[("name","name"),("size","size"),None]
 
     def revert_selection(self)->None:
         self.data.setSelected(not self.data.getSelected())
@@ -182,3 +227,18 @@ class FileEntry(TableEntry):
             for h in self._columnContent:
                 h[2]._invalidate()
         return super().render(size, focus)
+    
+
+class TitleEntry(urwid.Pile):
+    
+    def __init__(self,custom_data):
+        self._custom_data=custom_data.copy()
+        arr=[]
+        for i in range(len(FileEntry.schema)):
+            if (FileEntry.title_schema[i]==None):
+                arr.append(('weight',FileEntry.schema[i][1],urwid.Text("")))
+            else:
+                #pass
+                arr.append(('weight',FileEntry.schema[i][1],Title(self._custom_data,FileEntry.title_schema[i][0],FileEntry.title_schema[i][1],None)))
+        
+        super().__init__([urwid.Columns(arr,dividechars=1),urwid.Divider("-")])
