@@ -92,7 +92,7 @@ class FilePanel(urwid.Filler):
         if (key=='c' and Manager.operation_mode=="normal"):
             return self._start_selection("select_for_copy")
 
-        if (key=='left'):
+        if (key=='backspace'):
             res=self._workspace.step_up()
             if (res!=None):
                 asyncio.create_task(self._custom_data["TwoTabs"].push_on_stack(ErrorWindow(res)))
