@@ -2,6 +2,7 @@ from os import listdir
 import os.path
 from logic.file import *
 from typing import Iterable
+from typing import Literal
 
 from logic.selection import Selection
 from logic.subscriptable import Subscriptable
@@ -31,6 +32,12 @@ class Workspace(Subscriptable):
     
     def get_sort(self):
         return self._sort
+
+    def set_sort(self,prop:str,type:Literal["asc","desc"]):
+        assert(prop in [h[0] for h in File.props])
+        assert(type in ["asc","desc"])
+        self._sort=(prop,type)
+        self.send_update()
 
     """ def update_view(self)->None:
         if self._callback_object is not None:
