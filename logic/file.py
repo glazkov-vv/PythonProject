@@ -1,6 +1,9 @@
 import os
 import os.path
 
+import humanize.time
+from datetime import datetime
+
 from logic.workspacemanager import WorkspaceManager
 from logic.permissions import FilePermissions
 from logic.subscriptable import Subscriptable
@@ -66,4 +69,10 @@ class File(Subscriptable):
     def get_directory(self)->str:
         return os.path.dirname(self._path)
     
-    props={"name":get_name,"size":getSize}
+    def get_modified(self)->datetime:
+        return datetime.fromtimestamp(int(os.path.getmtime(self._path)))
+
+    def get_modified_formatted(self)->str:
+        return humanize.naturaltime(self.get_modified())
+
+    props={"name":get_name,"size":getSize,"modified":get_modified}

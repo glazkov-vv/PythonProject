@@ -181,8 +181,8 @@ class FileEntry(TableEntry):
     def get_file_name(self)->FileName:
         return FileName(self._custom_data)
     
-    schema=[("get_file_name",4,'method'),("getFormattedSize",1,'content'),("get_selectable",0.5,'method')]
-    title_schema=[("name","name"),("size","size"),None]
+    schema=[("get_file_name",3,'method'),("getFormattedSize",1,'content'),("get_modified_formatted",1,'content'),("get_selectable",0.5,'method')]
+    title_schema=[("name","name"),("size","size"),("last modified","modified"),None]
 
     def revert_selection(self)->None:
         self.data.setSelected(not self.data.getSelected())
