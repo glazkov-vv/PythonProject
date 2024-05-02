@@ -84,7 +84,9 @@ class FilePanel(urwid.Filler):
             asyncio.create_task(self._custom_data["TwoTabs"].execute_transaction(RemoveTransaction(sel)))
             return None
 
-            
+        if (key=='t' and Manager.operation_mode=='normal'):
+            self._workspace.set_tree(not self._workspace.get_tree())
+
 
         if (key=='x' and Manager.operation_mode=="normal"):
             return self._start_selection("select_for_move")

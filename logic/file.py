@@ -1,3 +1,4 @@
+
 import os
 import os.path
 
@@ -8,6 +9,7 @@ from logic.workspacemanager import WorkspaceManager
 from logic.permissions import FilePermissions
 from logic.subscriptable import Subscriptable
 import humanize
+
 
 
 def possiblePermissionError(fun):
@@ -23,6 +25,7 @@ def possiblePermissionError(fun):
 class File(Subscriptable):
     _path:str
     _selected:bool
+    
 
     def __init__(self) -> None:
         super().__init__()
@@ -56,16 +59,35 @@ class File(Subscriptable):
         return os.access(self._path,os.EX_OK)
 
     @staticmethod
-    def fromPath(path:str)->str:
+    def fromPath(path:str,par=None):
         file=File()
         file._path=path
         file._selected=False
+        file._par=par
         return file
 
     def getPath(self)->str:
         return self._path
     def get_name(self)->str:
         return os.path.basename(self._path)
+    
+    def get_kth_par(self,k:int):
+        if (k==0):
+            return self
+        return self._par.get_kth_par(k-1)
+
+    def get_depth(self)->str:
+        if (self._par==None):
+            return 0
+        return self._par.get_depth()+1
+    
+    def add_depth(self)->str:
+        return "  "*self.get_depth()
+
+    def get_name_formatted(self)->str:
+        return self.add_depth()+self.get_name()
+
+
     def get_directory(self)->str:
         return os.path.dirname(self._path)
     

@@ -3,14 +3,25 @@ import os.path
 from logic.file import *
 from typing import Iterable
 from typing import Literal
-
+from functools import cmp_to_key
 from logic.selection import Selection
 from logic.subscriptable import Subscriptable
 
 
-def build_table(path=None)->Iterable[File]:
-    return [File.fromPath(os.path.join("" if path is None else path,h)) for h in listdir(path)]
-
+def build_table(path=None,tree=False)->Iterable[File]:
+    if (not tree):
+        return [File.fromPath(os.path.join("" if path is None else path,h)) for h in listdir(path)]
+    
+    walkres=os.walk(path)
+    ans=[]
+    binds={}
+    for (dir,dirnames,filenames) in walkres:
+        total=dirnames+filenames
+        for h in total:
+            cfile=File.fromPath(os.path.join(dir,h),None if dir not in binds else binds[dir])
+            binds[cfile.getPath()]=cfile
+            ans.append(cfile)
+    return ans
 
 
 class Workspace(Subscriptable):
@@ -21,11 +32,46 @@ class Workspace(Subscriptable):
         self._path=path
         self._sort=("name","asc")
         self._contents:list=None
+        self._tree=False
         self.rebuild()
         WorkspaceManager._instances.append(self)
-    def rebuild(self)->None:
-        self._contents=build_table(self.get_path())
-        self.send_update()
+    
+    def get_tree(self)->bool:
+        return self._tree
+    
+    def set_tree(self,val:bool)->None:
+        self._tree=val
+        self.rebuild()
+
+    def rebuild(self,prop=None)->None:
+        self._contents=build_table(self.get_path(),self._tree)
+
+        (prop,type)=self._sort
+        reverse= -1 if type=="desc" else 1
+        def cmp(x:File,y:File)->int:
+            c=1
+
+            if (x.get_depth()>y.get_depth()):
+                (x,y)=(y,x)
+                c*=-1
+            
+            y=y.get_kth_par(y.get_depth()-x.get_depth())
+            if y==x:
+                return -1*c
+
+            if (x._par!=y._par):
+                return cmp(x._par,y._par)
+            xkey=File.props[prop](x)
+            ykey=File.props[prop](y)
+            if xkey<ykey:
+                return -1*c*reverse
+            return 1*c*reverse
+            
+
+        self._contents.sort(key=cmp_to_key(cmp))
+
+
+        self.send_update(prop)
     def get_contents(self)->Iterable[File]:
         return self._contents
     def get_path(self)->str:
@@ -38,10 +84,7 @@ class Workspace(Subscriptable):
         #assert(prop in [h[0] for h in File.props])
         #assert(type in ["asc","desc"])
         self._sort=(prop,type)
-
-        self._contents.sort(key=lambda x: File.props[prop](x),reverse=type=="desc")
-
-        self.send_update(prop)
+        self.rebuild(prop)
 
     """ def update_view(self)->None:
         if self._callback_object is not None:
