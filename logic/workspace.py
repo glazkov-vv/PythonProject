@@ -29,7 +29,7 @@ class Workspace(Subscriptable):
         WorkspaceManager._instances.remove(self)
     def __init__(self,path) -> None:
         super().__init__()
-        self._path=path
+        self._path=os.path.abspath(path)
         self._sort=("name","asc")
         self._contents:list=None
         self._tree=False
@@ -43,7 +43,7 @@ class Workspace(Subscriptable):
         self._tree=val
         self.rebuild()
 
-    def rebuild(self,prop=None)->None:
+    def rebuild(self,should_update:bool=False)->None:
         self._contents=build_table(self.get_path(),self._tree)
 
         (prop,type)=self._sort
@@ -74,7 +74,7 @@ class Workspace(Subscriptable):
         self._contents.sort(key=cmp_to_key(finalcmp(reverse)))
 
 
-        self.send_update(prop)
+        self.send_update(should_update)
     def get_contents(self)->Iterable[File]:
         return self._contents
     def get_path(self)->str:
@@ -87,7 +87,7 @@ class Workspace(Subscriptable):
         #assert(prop in [h[0] for h in File.props])
         #assert(type in ["asc","desc"])
         self._sort=(prop,type)
-        self.rebuild(prop)
+        self.rebuild(True)
 
     """ def update_view(self)->None:
         if self._callback_object is not None:
