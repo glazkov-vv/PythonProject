@@ -83,10 +83,10 @@ class FileName(urwid.Widget):
     def __init__(self, custom_data:dict) -> None:
         super().__init__()
         self._custom_data=custom_data.copy()
-        self._text=urwid.Text(self._custom_data["FileEntry"].data.get_name(),wrap='ellipsis')
+        self._text=urwid.Text(self._custom_data["FileEntry"].data.get_name_formatted(),wrap='ellipsis')
         
     def update_data(self):
-        self._text=urwid.Text(self._custom_data["FileEntry"].data.get_name(),wrap='ellipsis')
+        self._text=urwid.Text(self._custom_data["FileEntry"].data.get_name_formatted(),wrap='ellipsis')
 
     _selectable:False
 

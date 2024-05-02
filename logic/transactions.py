@@ -95,7 +95,7 @@ class MoveTransaction(Transaction):
                 if (cancellation.is_set()):
                     return
                 cur_size=calc_total_size([h[1] for h in self._instructions])
-                share=cur_size/total_size
+                share= cur_size/total_size if total_size!=0 else 1
                 if (self._progress_callback!=None):
                     self._progress_callback(share)
                 await asyncio.sleep(0.2)
@@ -176,7 +176,7 @@ class CopyTransaction(Transaction):
                 if (cancellation.is_set()):
                     return
                 cur_size=calc_total_size([h[1] for h in self._instructions])
-                share=cur_size/total_size
+                share= cur_size/total_size if total_size!=0 else 1
                 if (self._progress_callback!=None):
                     self._progress_callback(share)
                 await asyncio.sleep(0.2)

@@ -76,13 +76,13 @@ class File(Subscriptable):
             return self
         return self._par.get_kth_par(k-1)
 
-    def get_depth(self)->str:
+    def get_depth(self)->int:
         if (self._par==None):
             return 0
         return self._par.get_depth()+1
     
     def add_depth(self)->str:
-        return "  "*self.get_depth()
+        return "|--"*self.get_depth()
 
     def get_name_formatted(self)->str:
         return self.add_depth()+self.get_name()
