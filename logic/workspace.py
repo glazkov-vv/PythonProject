@@ -93,7 +93,19 @@ class Workspace(Subscriptable):
     """ def set_callback_object(self,value:object)->None:
         self._callback_object=value """
 
-    
+    def get_children(self,file:File)->list[File]:
+        return [h for h in self._contents if file in h.get_pars()]
+
+    def set_selected(self,file:File,value:bool)->int:
+        if (value==False):
+            file.setSelected(False)
+            for h in self.get_children(file):
+                h.setSelected(False)
+        if (value==True):
+            file.setSelected(True)
+            for h in self.get_children(file):
+                h.setSelected('unavailable')
+
     def step_in(self,path)->None|str:
         if (not os.access(path,os.X_OK) or not os.access(path,os.R_OK)):
             return "Insufficient permissions to read the directory"
@@ -107,6 +119,6 @@ class Workspace(Subscriptable):
         
         
     def get_selection(self)->Selection:
-        return Selection([h.getPath() for h in self._contents if h.getSelected()])
+        return Selection([h.getPath() for h in self._contents if h.getSelected()==True])
     
     

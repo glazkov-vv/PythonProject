@@ -1,4 +1,4 @@
-
+from typing import Literal
 import os
 import os.path
 
@@ -36,11 +36,22 @@ class File(Subscriptable):
     def getSize(self)->int | None:
         return os.path.getsize(self._path)
     
+
+    def get_pars(self)->str:
+        cur=self._par
+        ans=[]
+        while cur!=None:
+            ans.append(cur)
+            cur=cur._par
+        return ans
+    
+    
+        
     
     def getSelected(self)->bool:
         return self._selected
 
-    def setSelected(self,value:bool)->None:
+    def setSelected(self,value:bool|Literal["unavailable"])->None:
         self._selected=value
         self.send_update()
         
@@ -62,7 +73,7 @@ class File(Subscriptable):
     def fromPath(path:str,par=None):
         file=File()
         file._path=path
-        file._selected=False
+        file._selected:bool|Literal["unavailable"]=False
         file._par=par
         return file
 
@@ -91,6 +102,8 @@ class File(Subscriptable):
     def get_directory(self)->str:
         return os.path.dirname(self._path)
     
+    
+
     def get_modified(self)->datetime:
         return datetime.fromtimestamp(int(os.path.getmtime(self._path)))
 

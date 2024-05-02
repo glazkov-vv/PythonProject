@@ -55,14 +55,17 @@ class TableEntry(urwid.Widget):
         return self._columns.render(size,focus)
 
 class Selectable(urwid.Text):
+    mapping={False:"( )",
+             True:"(*)",
+             "unavailable":"(x)"}
     def __init__(self, custom_data:dict) -> None:
         self._custom_data=custom_data.copy()
-        super().__init__("(*)" if self._custom_data["FileEntry"].is_selected() else "( )",align='center')
+        super().__init__(Selectable.mapping[self._custom_data["FileEntry"].is_selected()],align='center')
 
     _selectable=True
 
     def update_data(self):
-        super().set_text("(*)" if self._custom_data["FileEntry"].is_selected() else "( )")
+        super().set_text(Selectable.mapping[self._custom_data["FileEntry"].is_selected()])
     
     def mouse_event(self, size: tuple[()] | tuple[int] | tuple[int, int], event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
        if (button==1 and event=='mouse press'):
@@ -172,7 +175,7 @@ class FileEntry(TableEntry):
 
 
     
-    def is_selected(self)->bool:
+    def is_selected(self)->bool|Literal["unavailable"]:
         return self.data.getSelected()
 
     def get_selectable(self)->Selectable:
@@ -185,7 +188,9 @@ class FileEntry(TableEntry):
     title_schema=[("name","name"),("size","size"),("last modified","modified"),None]
 
     def revert_selection(self)->None:
-        self.data.setSelected(not self.data.getSelected())
+        if (self.data.getSelected() =='unavailable'):
+            return
+        self._workspace.set_selected(self.data,not self.data.getSelected())
 
 
     def doubleClick(self)->None:
