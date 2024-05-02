@@ -50,7 +50,8 @@ class Workspace(Subscriptable):
         reverse= -1 if type=="desc" else 1
         def cmp(x:File,y:File,reverse:int)->int:
             c=1
-
+            if ({x.get_name(),y.get_name()}=={"navi","aaa"}):
+                pass
             if (x.get_depth()>y.get_depth()):
                 (x,y)=(y,x)
                 c*=-1
@@ -60,11 +61,13 @@ class Workspace(Subscriptable):
                 return -1*c
 
             if (x._par!=y._par):
-                return cmp(x._par,y._par,1)*c
+                return cmp(x._par,y._par,reverse)*c
             xkey=File.props[prop](x)
             ykey=File.props[prop](y)
             if xkey<ykey:
                 return -1*c*reverse
+            if xkey==ykey:
+                return (-1 if id(x)<id(y) else 1)*c*reverse
             return 1*c*reverse
             
         def finalcmp(arg):
