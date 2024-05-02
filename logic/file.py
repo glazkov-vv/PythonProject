@@ -73,7 +73,7 @@ class File(Subscriptable):
     def fromPath(path:str,par=None):
         file=File()
         file._path=path
-        file._selected:bool|Literal["unavailable"]=False
+        file._selected=False
         file._par=par
         return file
 

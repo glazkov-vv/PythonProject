@@ -48,7 +48,7 @@ class Workspace(Subscriptable):
 
         (prop,type)=self._sort
         reverse= -1 if type=="desc" else 1
-        def cmp(x:File,y:File)->int:
+        def cmp(x:File,y:File,reverse:int)->int:
             c=1
 
             if (x.get_depth()>y.get_depth()):
@@ -60,15 +60,18 @@ class Workspace(Subscriptable):
                 return -1*c
 
             if (x._par!=y._par):
-                return cmp(x._par,y._par)
+                return cmp(x._par,y._par,1)*c
             xkey=File.props[prop](x)
             ykey=File.props[prop](y)
             if xkey<ykey:
                 return -1*c*reverse
             return 1*c*reverse
             
-
-        self._contents.sort(key=cmp_to_key(cmp))
+        def finalcmp(arg):
+            def wrap(x,y):
+                return cmp(x,y,arg)
+            return wrap
+        self._contents.sort(key=cmp_to_key(finalcmp(reverse)))
 
 
         self.send_update(prop)
