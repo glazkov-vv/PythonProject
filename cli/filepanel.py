@@ -346,7 +346,7 @@ class FilePanel(urwid.Filler):
         self._infocus=None
         #temp=build_table(path)
 
-        lbx=MonitoredListBox([urwid.Text("OPS")]+[TitleEntry(self._custom_data)]+[FileEntry(self._custom_data,h,self.pos,workspace) for h in workspace.get_contents()])
+        lbx=MonitoredListBox([PanelPath(self._custom_data)]+[TitleEntry(self._custom_data)]+[FileEntry(self._custom_data,h,self.pos,workspace) for h in workspace.get_contents()])
         super().__init__(lbx,height=('relative',80))
         self._lastClick=0
     
@@ -372,7 +372,7 @@ class FilePanel(urwid.Filler):
     
 
     def rebuild(self,in_focus:bool=False)->None:
-        lbx=MonitoredListBox([urwid.Text("OPS")]+[TitleEntry(self._custom_data)]+[FileEntry(self._custom_data,h,self.pos,self._workspace) for h in self._workspace.get_contents()])
+        lbx=MonitoredListBox([PanelPath(self._custom_data)]+[TitleEntry(self._custom_data)]+[FileEntry(self._custom_data,h,self.pos,self._workspace) for h in self._workspace.get_contents()])
         oldpath=self.body.get_focus_path()
         self.body=lbx
 
