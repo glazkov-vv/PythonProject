@@ -12,8 +12,8 @@ from cli.manager import Manager
 from cli.props import PropertyWindow, PropertyWindowMock
 from logic.file import File
 from logic.workspace import Workspace
-
-
+from logic.configmanager import ConfigManager
+from logic.workspacemanager import WorkspaceManager
 
 
 class TableEntry(urwid.Widget):
@@ -228,8 +228,13 @@ class FileEntry(TableEntry):
             if (res!=None):
                 self._custom_data["TwoTabs"].push_on_stack(ErrorWindow(res))
         else:
-            os.system("vim")
-            Manager.global_redraw()
+            command=ConfigManager.get_command(self.data.getPath())
+            if command!=None:
+                os.system(command)
+                WorkspaceManager.rebuild_all()
+                Manager.global_redraw()
+
+            
 
     def keypress(self,size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
         super().keypress(size,key)
