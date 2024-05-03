@@ -3,10 +3,11 @@ from typing import *
 
 from logic.transactions import Transaction
 from logic.workspace import Workspace
-
+import urwid
 
 class Manager:
     _locked_on=None
+    loop:urwid.MainLoop
     current_two_tabs=None
     active_workspaces:Iterable[Workspace]=[None,None]
     operation_mode:Literal["normal","select_for_move","select_for_copy"]="normal"
@@ -30,3 +31,9 @@ class Manager:
         if (len(cls._queue)==0):
             return None
         return cls._queue.pop()
+    @classmethod
+    def global_redraw(cls)->None:
+        #cls.current_two_tabs._invalidate()
+
+        cls.loop.screen.clear()
+        cls.loop.draw_screen()

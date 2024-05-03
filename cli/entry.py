@@ -6,7 +6,7 @@ from typing_extensions import Literal
 import urwid
 import asyncio
 import time
-
+import os
 from cli.error import ErrorWindow
 from cli.manager import Manager
 from cli.props import PropertyWindow, PropertyWindowMock
@@ -227,7 +227,9 @@ class FileEntry(TableEntry):
             res=self._workspace.step_in(self.data.getPath())
             if (res!=None):
                 self._custom_data["TwoTabs"].push_on_stack(ErrorWindow(res))
-        
+        else:
+            os.system("vim")
+            Manager.global_redraw()
 
     def keypress(self,size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
         super().keypress(size,key)

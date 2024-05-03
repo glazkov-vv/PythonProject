@@ -96,6 +96,11 @@ class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget,ExecutesTransactions):
         
         return self.contents[0][0].render(size,focus)
     
+
+    def _invalidate(self) -> None:
+        for h in self.contents: 
+            h[0]._invalidate()
+        return super()._invalidate()
     """ def update(self,path,num)->None:
         active_workspaces[num]=Workspace(path)
         self.contents[0][0].contents[num]=(FilePanel(active_workspaces[num],num),self.contents[0][0].contents[num][1])
