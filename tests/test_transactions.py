@@ -73,5 +73,5 @@ async def test_change_permissions_and_unsuccessful_copy_move(setupdir):
     res=await c2.execute()
     assert(res!=None)
 
-    c1.revert().execute()
+    await c1.revert().execute()
     #assert(File.fromPath(cpath).get_permissions()==cperm)

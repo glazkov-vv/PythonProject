@@ -81,8 +81,8 @@ class MoveTransaction(Transaction):
                 return f"File {h[1]} already exists"
             if (not os.access(os.path.dirname(h[1]),os.W_OK)):
                 return f"Cannot create file {h[1]}"
-            if (not os.access(h[0],os.R_OK)):
-                return f"Cannot read file {h[0]}"
+            if (not os.access(h[0],os.W_OK)):
+                return f"Cannot move file {h[0]}"
         
         total_size=calc_total_size([h[0] for h in self._instructions])
 
