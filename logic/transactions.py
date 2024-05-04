@@ -208,7 +208,7 @@ class RemoveTransaction(Transaction):
         for h in self._files:
             if (not os.path.exists(h)):
                 return f"File {h} does not exist"
-            if (not os.access(os.path.dirname(h),os.W_OK)):
+            if (not os.access(os.path.dirname(h),os.W_OK) or not os.access(os.path.dirname(h),os.X_OK) or (os.path.isdir(h) and not os.access(h,os.X_OK))):
                 return f"Cannot delete file {h}"
         
         for h in self._files:
