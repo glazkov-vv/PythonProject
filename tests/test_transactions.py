@@ -61,7 +61,7 @@ async def test_move(setupdir):
 
 
 @pytest.mark.asyncio
-async def test_change_permissions_and_unsuccessful_copy_move(setupdir):
+async def test_change_permissions_and_unsuccessful_move(setupdir):
     cpath=os.path.join(tmpdir,"A","C")
     cperm=File.fromPath(cpath).get_permissions()
     nperm=[True,False,True]*3
@@ -75,3 +75,42 @@ async def test_change_permissions_and_unsuccessful_copy_move(setupdir):
 
     await c1.revert().execute()
     #assert(File.fromPath(cpath).get_permissions()==cperm)
+
+@pytest.mark.asyncio
+async def test_change_permissions_and_unsuccessful_copy_and_remove(setupdir):
+    cpath=os.path.join(tmpdir,"A","C")
+    xpath=os.path.join(tmpdir,"A","C","x.txt")
+    xperm=File.fromPath(xpath).get_permissions()
+    nperm=[False,True,True]*3
+    c1=ChangePermissionTransaction(xpath,xperm,nperm)
+    await c1.execute()
+    
+    c2=CopyTransaction(Selection([cpath]),os.path.join(tmpdir,"A","B"))
+    res=await c2.execute()
+    assert(res!=None)
+    await c1.revert().execute()
+
+    await c1.revert().execute()
+    Ypath=os.path.join(tmpdir,"A","C","Y")
+
+    os.mkdir(Ypath)
+    with open(os.path.join(Ypath,"y.txt"),"w"):
+        pass
+
+    c3=ChangePermissionTransaction(Ypath,File.fromPath(Ypath).get_permissions(),[True,True,False]*3)
+    await c3.execute()
+    c4=CopyTransaction(Selection([cpath]),os.path.join(tmpdir,"A"))
+    res=await c4.execute()
+    assert(res != None)
+    
+    c5=RemoveTransaction(Selection([Ypath]))
+    res=await c5.execute()
+    assert (res!=None)
+
+    await c3.revert().execute()
+
+    c5=RemoveTransaction(Selection([Ypath]))
+    res=await c5.execute()
+    assert(not os.path.exists(Ypath))
+    
+
