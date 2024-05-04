@@ -37,7 +37,7 @@ class File(Subscriptable):
         return os.path.getsize(self._path)
     
 
-    def get_pars(self)->str:
+    def get_pars(self)->list:
         cur=self._par
         ans=[]
         while cur!=None:

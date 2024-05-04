@@ -2,3 +2,6 @@
 .vscode/
 gui/*
 app2.py
+htmlcov/*
+coverage.xml
+.coverage
