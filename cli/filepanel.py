@@ -404,6 +404,8 @@ class FilePanel(urwid.Filler):
 
     
 
+
+
     def keypress(self, size: tuple[int, int] | tuple[()], key: str) -> str | None:
         if (key=='esc'):
             Manager.set_lock(None)
@@ -416,6 +418,9 @@ class FilePanel(urwid.Filler):
         if (key=='t' and Manager.operation_mode=='normal'):
             self._workspace.set_tree(not self._workspace.get_tree())
 
+        if (key=='m'):
+            asyncio.create_task(self._custom_data["TwoTabs"].mkdir(self.getPath()))
+            return None
 
         if (key=='x' and Manager.operation_mode=="normal"):
             return self._start_selection("select_for_move")

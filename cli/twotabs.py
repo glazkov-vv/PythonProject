@@ -5,7 +5,7 @@ from cli.executestransactions import ExecutesTransactions
 from cli.manager import Manager
 from cli.stackedview import StackedView
 from logic.file import *
-from logic.transactions import CopyTransaction
+from logic.transactions import CopyTransaction, MakeDirectoryTransaction
 from logic.workspace import *
 from cli.filepanel import *
 
@@ -44,6 +44,11 @@ class TwoTabs(urwid.WidgetContainerMixin,urwid.Widget,ExecutesTransactions):
          self.contents[0][0].focus_position=pos
     def get_focus(self)->int:
          return self.contents[0][0].focus_position
+
+    async def mkdir(self,path:str)->None:
+        tr=MakeDirectoryTransaction(path)
+        await self.execute_transaction(tr)
+        
 
     def set_normal_mode(self):
         Manager.set_lock(None)
