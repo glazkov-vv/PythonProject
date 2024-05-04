@@ -113,4 +113,27 @@ async def test_change_permissions_and_unsuccessful_copy_and_remove(setupdir):
     res=await c5.execute()
     assert(not os.path.exists(Ypath))
     
+@pytest.mark.asyncio
+async def test_mkdir(setupdir):
+    c1=MakeDirectoryTransaction(tmpdir)
+    c2=MakeDirectoryTransaction(tmpdir)
+    c3=MakeDirectoryTransaction(tmpdir)
+    await c1.execute()
+    await c2.execute()
+    await c3.execute()
 
+    assert(all((os.path.exists(h) for h in [os.path.join(tmpdir,"Folder"+hh) for hh in [""," 0"," 1"]])))
+    await c3.revert().execute()
+    await c2.revert().execute()
+    await c1.revert().execute()
+
+    assert(all((not os.path.exists(h) for h in [os.path.join(tmpdir,"Folder"+hh) for hh in [""," 0"," 1"]])))
+
+    Apath=os.path.join(tmpdir,"A")
+    cperm=File.fromPath(Apath).get_permissions()
+    t1=ChangePermissionTransaction(Apath,cperm,[True,False,True]*3)
+    await t1.execute()
+    c4=MakeDirectoryTransaction(Apath)
+    res=await c4.execute()
+    assert(res!=None)
+    await t1.revert().execute()

@@ -136,6 +136,7 @@ class CopyTransaction(Transaction):
         ans._instructions=instructions
         return ans
 
+    
     async def execute(self) -> None | str:
         for h in self._instructions:
             if (os.path.exists(h[1])):
@@ -202,6 +203,8 @@ class RemoveTransaction(Transaction):
     def __init__(self,files:Selection) -> None:
         self._files=files.get_list()
         super().__init__()
+    
+    
     async def execute(self, progress_callback: None | Callable[..., Any] = None) -> None | str:
         if (len(self._files)==0):
             return "No files selected for removal"
@@ -246,4 +249,4 @@ class MakeDirectoryTransaction(Transaction):
     
     def revert(self)->str:
     
-        return self._new_path
+        return RemoveTransaction(Selection([self._new_path]))
