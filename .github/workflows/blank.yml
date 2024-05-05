@@ -37,6 +37,8 @@ jobs:
 
       - name: Run tests
         run: pytest tests/ --cov logic --cov-report json
-      
+
+      - name: Update coverage badge
+        uses: we-cli/coverage-badge-action@main
 
       
