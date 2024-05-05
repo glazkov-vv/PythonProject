@@ -38,9 +38,11 @@ jobs:
       - name: Run tests
         run: pytest tests/ --cov logic --cov-report json:coverage/coverage.json
       
-      - name: Reformat coverage
+      - name: Build and load coverage
         run: |
             coverage-badge -o badge.svg
+            git config --global user.email "glazkov-vv@phystech.edu"
+            git config --global user.name "Vladislav Glazkov"
             git add badge.svg
             git commit -m "Updated badge"
             git push origin gh-pages
