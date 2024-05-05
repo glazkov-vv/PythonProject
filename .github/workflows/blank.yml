@@ -27,6 +27,6 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
-        run: apt-get install python3 pip3
+        run: sudo apt-get install python3 pip3
 
       
