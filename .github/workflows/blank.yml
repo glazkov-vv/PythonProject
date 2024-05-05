@@ -40,6 +40,7 @@ jobs:
       
       - name: Build and load coverage
         run: |
+            git fetch origin
             coverage-badge -o badge.svg
             git config --global user.email "glazkov-vv@phystech.edu"
             git config --global user.name "Vladislav Glazkov"
