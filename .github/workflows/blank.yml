@@ -41,7 +41,6 @@ jobs:
       - name: Reformat coverage
         run: |
             coverage-badge -o badge.svg
-            git switch gh-pages
             git add badge.svg
             git commit -m "Updated badge"
             git push origin gh-pages
