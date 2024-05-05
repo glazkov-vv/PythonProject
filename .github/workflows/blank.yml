@@ -50,8 +50,6 @@ jobs:
             git commit -m "Updated badge"
             git push origin gh-pages
         
-      
-      - name: Update coverage badge
-        uses: we-cli/coverage-badge-action@main
+    
 
       
