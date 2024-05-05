@@ -25,5 +25,5 @@ def process_coverage_summary(json_file, summary_file):
 
 if __name__ == '__main__':
     json_file = './coverage.json'
-    summary_file = './coverage_summary.json'
+    summary_file = './coverage-summary.json'
     process_coverage_summary(json_file, summary_file)
