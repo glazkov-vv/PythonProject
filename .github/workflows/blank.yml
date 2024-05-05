@@ -46,7 +46,7 @@ jobs:
             git config --global user.email "glazkov-vv@phystech.edu"
             git config --global user.name "Vladislav Glazkov"
             git add badge.svg
-            git switch -c gh-pages --track origin/gh-pages
+            git switch -c gh-pages --track origin/gh-pages --force
             git commit --allow-empty -m "Updated badge"
             git push origin gh-pages
         
