@@ -40,11 +40,13 @@ jobs:
       
       - name: Build and load coverage
         run: |
-            git fetch origin
+            git fetch 
+            
             coverage-badge -o badge.svg
             git config --global user.email "glazkov-vv@phystech.edu"
             git config --global user.name "Vladislav Glazkov"
             git add badge.svg
+            git switch -c gh-pages --track origin/gh-pages
             git commit -m "Updated badge"
             git push origin gh-pages
         
