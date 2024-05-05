@@ -36,8 +36,11 @@ jobs:
         run: sudo pip3 install urwid asyncio humanize pytest pytest-cov
 
       - name: Run tests
-        run: pytest tests/ --cov logic --cov-report json:coverage/coverage-summary.json
-
+        run: pytest tests/ --cov logic --cov-report json:coverage/coverage.json
+      
+      - name: Reformat coverage
+        run: (cd coverage && python3 covgen.py)
+      
       - name: Update coverage badge
         uses: we-cli/coverage-badge-action@main
 
