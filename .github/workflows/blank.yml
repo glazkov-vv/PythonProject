@@ -45,8 +45,8 @@ jobs:
             coverage-badge -o badge.svg
             git config --global user.email "glazkov-vv@phystech.edu"
             git config --global user.name "Vladislav Glazkov"
-            git switch -c gh-pages --track origin/gh-pages
             git add badge.svg
+            git switch -c gh-pages --track origin/gh-pages
             git commit -m "Updated badge"
             git push origin gh-pages
         
