@@ -34,8 +34,10 @@ class File(Subscriptable):
 
     @possiblePermissionError
     def getSize(self)->int | None:
-        return os.path.getsize(self._path)
-    
+        try:
+            return os.path.getsize(self._path)
+        except:
+            return -1
 
     def get_pars(self)->list:
         cur=self._par
@@ -60,7 +62,7 @@ class File(Subscriptable):
         return FilePermissions.perms_from_stat(os.stat(self._path))
 
     def getFormattedSize(self)->str:
-        return humanize.naturalsize(self.getSize())
+        return "NaN" if self.getSize()==-1 else humanize.naturalsize(self.getSize())
     
     def isDir(self)->bool:
         return os.path.isdir(self._path)
@@ -105,9 +107,13 @@ class File(Subscriptable):
     
 
     def get_modified(self)->datetime:
-        return datetime.fromtimestamp(int(os.path.getmtime(self._path)))
+        try:
+            return datetime.fromtimestamp(int(os.path.getmtime(self._path)))
+        except:
+            return datetime.fromtimestamp(0)
 
     def get_modified_formatted(self)->str:
-        return humanize.naturaltime(self.get_modified())
+        time=self.get_modified()
+        return "NaN" if time==datetime.fromtimestamp(0) else humanize.naturaltime(time)
 
     props={"name":get_name,"size":getSize,"modified":get_modified}

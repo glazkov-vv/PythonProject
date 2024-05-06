@@ -219,6 +219,7 @@ class FileEntry(TableEntry):
             return "folds"
         if (self.data.is_executable()):
             return "execs"
+        return "normal"
 
     def step_in(self)->None:
         

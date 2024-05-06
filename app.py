@@ -92,6 +92,7 @@ content.assign_prev(None,update)
 
 
 loop=urwid.MainLoop(content,palette=[("normal","default","default"),
+                                     ("rev normal","standout",""),
                                      ("reversed", "standout", ""),
                                      ("execs","light green",'default'),
                                      ("rev execs","light green","light gray"),
