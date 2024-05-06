@@ -253,44 +253,6 @@ class FileEntry(TableEntry):
     
 
 
-
-class MonitoredColumns(urwid.Columns):
-    
-
-
-    @property
-    def focus_position(self) -> int | None:
-        """
-        index of child widget in focus.
-        Raises :exc:`IndexError` if read when Columns is empty, or when set to an invalid index.
-        """
-        if not self.contents:
-            raise IndexError("No focus_position, Columns is empty")
-        return self.contents.focus
-
-    @focus_position.setter
-    def focus_position(self, position: int) -> None:    
-        """
-        Set the widget in focus.
-
-        position -- index of child widget to be made focus
-        """
-        try:
-            if position < 0 or position >= len(self.contents):
-                raise IndexError(f"No Columns child widget at position {position}")
-        except TypeError as exc:
-            raise IndexError(f"No Columns child widget at position {position}").with_traceback(
-                exc.__traceback__
-            ) from exc
-        self.contents.focus = position
-
-    def render(self, size: tuple[()] | tuple[int] | tuple[int, int], focus: bool = False) -> urwid.SolidCanvas | urwid.CompositeCanvas:
-        return super().render(size, focus)
-    
-    def _set_focus_position(self, position: int) -> None:
-        self.focus_position=position
-        return super()._set_focus_position(position)
-
 class TitleEntry(urwid.Pile):
     
     def __init__(self,custom_data):
@@ -303,7 +265,7 @@ class TitleEntry(urwid.Pile):
                 #pass
                 arr.append(('weight',FileEntry.schema[i][1],Title(self._custom_data,FileEntry.title_schema[i][0],FileEntry.title_schema[i][1],None)))
         
-        super().__init__([MonitoredColumns(arr,dividechars=1),urwid.Divider("-")])
+        super().__init__([urwid.Columns(arr,dividechars=1),urwid.Divider("-")])
 
 class PanelPath(urwid.Pile):
     def __init__(self, custom_data):
