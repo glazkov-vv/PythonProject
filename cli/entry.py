@@ -313,6 +313,48 @@ class TitleEntry(urwid.Pile):
         
         super().__init__([MonitoredColumns(arr,dividechars=1),urwid.Divider("-")])
 
+
+class PanelPathPart(urwid.Text):
+    def selectable(self) -> bool:
+        return True
+    
+    def __init__(self, custom_data:dict,path:str) -> None:
+        self._path=path
+        self._custom_data=custom_data.copy()
+        self._last_click=0
+        super().__init__(path.split('/')[-1])
+    
+    def move(self):
+        res=self._custom_data["Workspace"].step_in(self._path)
+        if (res!=None):
+            self._custom_data["TwoTabs"].push_on_stack(ErrorWindow(res))
+
+    def double_click(self):
+        self.move()
+
+    def mouse_event(self, size: tuple[()] | tuple[int] | tuple[int, int], event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
+        if event=="mouse press" and button==1:
+            if abs(self._last_click-time.time())<0.2:
+                self.double_click()
+            self._last_click=time.time()
+        return super().mouse_event(size,event,button,col,row,focus)
+    
+    def keypress(self, size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
+        if key=='enter':
+            self.move()
+            return None
+        return super().keypress(size,key)
+    
+
+
 class PanelPath(urwid.Pile):
     def __init__(self, custom_data):
-        super().__init__([urwid.Text(custom_data["Workspace"].get_path())]+[urwid.Divider("-")])
+        
+        paths=custom_data["Workspace"].get_path().split('/')
+        objs=[urwid.Text("/")]
+        for i in range(2,len(paths)+1):
+            temp="/"+"/".join(paths[1:i])
+            objs.append(urwid.AttrMap(PanelPathPart(custom_data,temp),"normal","reversed"))
+            objs.append(urwid.Text("/"))
+
+        super().__init__([urwid.Columns([('pack',h ) for h in objs],dividechars=0)]+[urwid.Divider("-")])
