@@ -61,37 +61,19 @@ Manager.active_workspaces[0]=Workspace(".")
 Manager.active_workspaces[1]=Workspace(".")
 
 content=TwoTabs({},Manager.active_workspaces)   
-top = urwid.Overlay(
-    content,
-    urwid.SolidFill("\N{MEDIUM SHADE}"),
-    align=urwid.CENTER,
-    width=(urwid.RELATIVE, 85),
-    valign=urwid.MIDDLE,
-    height=(urwid.RELATIVE, 85),
-    min_width=20,
-    min_height=9,
-)
+top = content
 
 
 def update(value:StackedView):
     value._updated_event.set()
     value._updated_event.clear()
-    loop.widget=urwid.Overlay(
-        value,
-        urwid.SolidFill("\N{MEDIUM SHADE}"),
-        align=urwid.CENTER,
-        width=(urwid.RELATIVE, 85),
-        valign=urwid.MIDDLE,
-        height=(urwid.RELATIVE, 85),
-        min_width=20,
-        min_height=9,
-    )
+    loop.widget=value
     loop.draw_screen()
 
 content.assign_prev(None,update)
 
 
-loop=urwid.MainLoop(content,palette=[("normal","default","default"),
+loop=urwid.MainLoop(top,palette=[("normal","default","default"),
                                      ("rev normal","standout",""),
                                      ("reversed", "standout", ""),
                                      ("execs","light green",'default'),
