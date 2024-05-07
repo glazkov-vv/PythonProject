@@ -156,6 +156,7 @@ ActionButton
 Сортировка, древовидное отображение - через изменение свойств getFiles
 
 
+
 --------
 # Как использовать
 
@@ -189,3 +190,4 @@ ActionButton
 Модули, отвечающие за внутреннюю логику (не UI) покрыты тестами на:
 
 ![cov](https://glazkov-vv.github.io/PythonProject/badge.svg)
+
