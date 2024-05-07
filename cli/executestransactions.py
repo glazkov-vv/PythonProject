@@ -9,20 +9,20 @@ class ExecutesTransactions(StackedView):
     def __init__(self) -> None:
         super().__init__()
 
-    async def execute_transaction(self,transaction:Transaction,is_cancellation=False)->None:
-        prog_wnd=None
+    async def execute_transaction(self, transaction: Transaction, is_cancellation=False) -> None:
+        prog_wnd = None
         if (transaction.__class__.reports_progress()):
-             prog_wnd=ProgressWindow()
-             transaction.set_callback(prog_wnd.callback)
-             self.push_on_stack(prog_wnd)
+            prog_wnd = ProgressWindow()
+            transaction.set_callback(prog_wnd.callback)
+            self.push_on_stack(prog_wnd)
 
-        res=await transaction.execute()
-        if (prog_wnd!=None):
+        res = await transaction.execute()
+        if (prog_wnd != None):
             prog_wnd.pop_on_stack()
 
-        if (res!=None):
+        if (res != None):
             self.push_on_stack(ErrorWindow(res))
             await self._updated_event.wait()
-            return 
+            return
         if (not is_cancellation):
-                Manager.push_to_queue(transaction.revert())
+            Manager.push_to_queue(transaction.revert())
