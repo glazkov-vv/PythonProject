@@ -69,7 +69,7 @@ class File(Subscriptable):
 
 
     def is_executable(self)->bool:
-        return os.access(self._path,os.EX_OK)
+        return os.access(self._path,os.X_OK)
 
     @staticmethod
     def fromPath(path:str,par=None):

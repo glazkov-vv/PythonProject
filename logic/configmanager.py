@@ -10,6 +10,7 @@ class ConfigManager:
             json_file=f.read()
         return json.loads(json_file)
     apps_mapping:dict[str,str]=init_app_mapping()
+    
 
     @classmethod
     def get_command(cls,path:str)->str|None:
