@@ -19,8 +19,16 @@ class FilePanel(urwid.Filler):
         self._infocus=None
         #temp=build_table(path)
 
-        lbx=urwid.ListBox([PanelPath(self._custom_data)]+[TitleEntry(self._custom_data)]+[FileEntry(self._custom_data,h,self.pos,workspace) for h in workspace.get_contents()])
-        super().__init__(lbx,height=('relative',80))
+        
+        #lbx=urwid.ListBox([PanelPath(self._custom_data)]+[TitleEntry(self._custom_data)]+[urwid.BoxAdapter(urwid.ListBox([FileEntry(self._custom_data,h,self.pos,workspace) for h in workspace.get_contents()]),height=('relative',100))])
+        
+        lbx=urwid.ListBox([FileEntry(self._custom_data,h,self.pos,workspace) for h in workspace.get_contents()])
+
+        
+        top=urwid.Pile([PanelPath(self._custom_data),TitleEntry(self._custom_data)],)
+        cont=urwid.Frame(lbx,header=top)
+
+        super().__init__(cont,height=('relative',80))
         self._lastClick=0
     
     _path:str
@@ -45,9 +53,15 @@ class FilePanel(urwid.Filler):
     
 
     def rebuild(self,in_focus:bool=False)->None:
-        lbx=urwid.ListBox([PanelPath(self._custom_data)]+[TitleEntry(self._custom_data)]+[FileEntry(self._custom_data,h,self.pos,self._workspace) for h in self._workspace.get_contents()])
+        lbx=urwid.ListBox([FileEntry(self._custom_data,h,self.pos,self._workspace) for h in self._workspace.get_contents()])
+
+        
+        top=urwid.Pile([PanelPath(self._custom_data),TitleEntry(self._custom_data)],)
+        cont=urwid.Frame(lbx,header=top)
+
+
         oldpath=self.body.get_focus_path()
-        self.body=lbx
+        self.body=cont
 
         if (in_focus):
             #pass
