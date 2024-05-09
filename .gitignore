@@ -1,0 +1,9 @@
+__pycache__/*
+*/__pycache__/*
+logic/__pycache__/*
+.vscode/
+gui/*
+app2.py
+htmlcov/*
+coverage.xml
+.coverage
