@@ -22,6 +22,8 @@ def build_table(path=None, tree=False) -> Iterable[File]:
                 dir, h), None if dir not in binds else binds[dir])
             binds[cfile.getPath()] = cfile
             ans.append(cfile)
+        if (len(ans) > 1500):
+            break
     return ans
 
 
@@ -41,8 +43,11 @@ class Workspace(Subscriptable):
     def get_tree(self) -> bool:
         return self._tree
 
-    def set_tree(self, val: bool) -> None:
+    def set_tree(self, val: bool) -> None | str:
+        if (len(build_table(self._path, val)) > 1000):
+            return "Too many files"
         self._tree = val
+
         self.rebuild()
 
     def rebuild(self, should_update: bool = False) -> None:
@@ -119,7 +124,8 @@ class Workspace(Subscriptable):
     def step_in(self, path) -> None | str:
         if (not os.access(path, os.X_OK) or not os.access(path, os.R_OK)):
             return "Insufficient permissions to read the directory"
-
+        if (len(build_table(path, self._tree)) > 1000):
+            return "Too many files"
         self._path = path
         self.rebuild()
         self.send_update()

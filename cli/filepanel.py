@@ -62,7 +62,7 @@ class FilePanel(urwid.Filler):
             async def fun():
                 self._custom_data["TwoTabs"].push_on_stack(
                     ErrorWindow("No files selected"))
-                await self._custom_data["TwoTabs"]._updated_event.wait()
+                # await self._custom_data["TwoTabs"]._updated_event.wait()
             asyncio.create_task(fun())
         else:
             Manager.set_lock(self.pos ^ 1)
@@ -80,7 +80,10 @@ class FilePanel(urwid.Filler):
             return None
 
         if (key == 't' and Manager.operation_mode == 'normal'):
-            self._workspace.set_tree(not self._workspace.get_tree())
+            res = self._workspace.set_tree(not self._workspace.get_tree())
+            if (res != None):
+                self._custom_data["TwoTabs"].push_on_stack(ErrorWindow(res))
+            return None
 
         if (key == 'm'):
             asyncio.create_task(
@@ -96,8 +99,7 @@ class FilePanel(urwid.Filler):
         if (key == 'backspace'):
             res = self._workspace.step_up()
             if (res != None):
-                asyncio.create_task(
-                    self._custom_data["TwoTabs"].push_on_stack(ErrorWindow(res)))
+                self._custom_data["TwoTabs"].push_on_stack(ErrorWindow(res))
             return None
 
         return super().keypress(size, key)
