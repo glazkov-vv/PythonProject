@@ -26,6 +26,74 @@ class Manager:
 
     _queue = []
 
+    class KeyMap:
+        @staticmethod
+        def enter() -> str:
+            return "enter"
+
+        @staticmethod
+        def props() -> str:
+            return "f12"
+
+        @staticmethod
+        def exit() -> str:
+            return "esc"
+
+        @staticmethod
+        def mkdir() -> str:
+            return "m"
+
+        @staticmethod
+        def tabchange() -> str:
+            return "tab"
+
+        @staticmethod
+        def treeview() -> str:
+            return "t"
+
+        @staticmethod
+        def cut() -> str:
+            return "x"
+
+        @staticmethod
+        def copy() -> str:
+            return "c"
+
+        @staticmethod
+        def paste() -> str:
+            return "v"
+
+        @staticmethod
+        def undo() -> str:
+            return "z"
+
+        @staticmethod
+        def toggle() -> str:
+            return " "
+
+        @staticmethod
+        def up() -> str:
+            return "backspace"
+
+        @staticmethod
+        def delete() -> str:
+            return "delete"
+
+        @staticmethod
+        def update() -> str:
+            return "f5"
+
+    # keymap = {"enter": "enter",
+    #           "props": "f12",
+    #           "exit": "esc",
+    #           "mkdir": "m",
+    #           "tabchange": "tab",
+    #           "treeview": "t",
+    #           "cut": "x",
+    #           "copy": "c",
+    #           "paste": "v",
+    #           "undo": "z"}
+
     @classmethod
     def push_to_queue(cls, transaction: Transaction) -> None:
         cls._queue.append(transaction)

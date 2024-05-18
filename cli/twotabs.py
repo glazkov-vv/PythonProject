@@ -64,28 +64,28 @@ class TwoTabs(urwid.WidgetContainerMixin, urwid.Widget, ExecutesTransactions):
         self.set_normal_mode()
 
     def keypress(self, size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
-        if (key == "z"):
+        if (key == Manager.KeyMap.undo()):
             if (Manager.operation_mode == "normal"):
                 val = Manager.pop_from_queue()
                 if (val != None):
                     asyncio.create_task(self.execute_transaction(val, True))
 
                 return None
-        if (key == "esc" and Manager.operation_mode != 'normal'):
+        if (key == Manager.KeyMap.exit() and Manager.operation_mode != 'normal'):
             self.set_normal_mode()
             return None
 
-        if (key == 'f5'):
+        if (key == Manager.KeyMap.update()):
             if (Manager.operation_mode == "normal"):
                 for h in Manager.active_workspaces:
                     h.rebuild()
                 return None
-        if (key == 'v'):
+        if (key == Manager.KeyMap.paste()):
             if (Manager.get_lock() != None):
                 asyncio.create_task(self.paste())
             return None
-        if key == 'tab':
-            if (Manager.get_lock() == None):
+        if key == Manager.KeyMap.tabchange():
+            if (Manager.get_lock() is None):
                 self.contents[0][0].focus_position ^= 1
             return None
 

@@ -70,33 +70,33 @@ class FilePanel(urwid.Filler):
         return None
 
     def keypress(self, size: tuple[int, int] | tuple[()], key: str) -> str | None:
-        if (key == 'esc'):
+        if (key == Manager.KeyMap.exit()):
             Manager.set_lock(None)
 
-        if (key == 'delete' and Manager.operation_mode == 'normal'):
+        if (key == Manager.KeyMap.delete() and Manager.operation_mode == 'normal'):
             sel = self._workspace.get_selection()
             asyncio.create_task(
                 self._custom_data["TwoTabs"].execute_transaction(RemoveTransaction(sel)))
             return None
 
-        if (key == 't' and Manager.operation_mode == 'normal'):
+        if (key == Manager.KeyMap.treeview() and Manager.operation_mode == 'normal'):
             res = self._workspace.set_tree(not self._workspace.get_tree())
             if (res != None):
                 self._custom_data["TwoTabs"].push_on_stack(ErrorWindow(res))
             return None
 
-        if (key == 'm'):
+        if (key == Manager.KeyMap.mkdir()):
             asyncio.create_task(
                 self._custom_data["TwoTabs"].mkdir(self.getPath()))
             return None
 
-        if (key == 'x' and Manager.operation_mode == "normal"):
+        if (key == Manager.KeyMap.cut() and Manager.operation_mode == "normal"):
             return self._start_selection("select_for_move")
             # self.contents[0][0]
-        if (key == 'c' and Manager.operation_mode == "normal"):
+        if (key == Manager.KeyMap.copy() and Manager.operation_mode == "normal"):
             return self._start_selection("select_for_copy")
 
-        if (key == 'backspace'):
+        if (key == Manager.KeyMap.up()):
             res = self._workspace.step_up()
             if (res != None):
                 self._custom_data["TwoTabs"].push_on_stack(ErrorWindow(res))

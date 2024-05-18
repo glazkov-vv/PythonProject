@@ -1,6 +1,7 @@
 import asyncio
 from typing_extensions import Literal
 import urwid
+from cli.manager import Manager
 from cli.error import ErrorWindow
 from cli.executestransactions import ExecutesTransactions
 from cli.stackedview import StackedView
@@ -61,10 +62,10 @@ class PropertyWindow(urwid.Widget, ExecutesTransactions):
         return self._content.mouse_event(size, event, button, col, row, focus)
 
     def keypress(self, size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
-        if (key == "esc"):
+        if (key == Manager.KeyMap.exit()):
             self.pop_on_stack()
             return None
-        if (key == "enter"):
+        if (key == Manager.KeyMap.enter()):
             asyncio.create_task(self.apply())
             return None
             # self.apply()

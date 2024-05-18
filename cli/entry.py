@@ -156,7 +156,7 @@ class Title(urwid.AttrMap):
             self._prop, "asc" if ctype != "asc" else "desc")
 
     def keypress(self, size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
-        if (key == " "):
+        if (key == Manager.KeyMap.toggle()):
             self.next_state()
         return super().keypress(size, key)
 
@@ -269,12 +269,12 @@ class FileEntry(TableEntry, DispatchDoubleClick):
 
     def keypress(self, size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
         super().keypress(size, key)
-        if (key == 'enter'):
+        if (key == Manager.KeyMap.enter()):
             self.step_in()
-        if (key == 'f12' and Manager.get_lock() == None):
+        if (key == Manager.KeyMap.props() and Manager.get_lock() is None):
             pw = PropertyWindow(self.data)
             self._custom_data["viewstack_push_function"](pw)
-        if (key == ' ' and Manager.get_lock() == None):
+        if (key == Manager.KeyMap().toggle() and Manager.get_lock() is None):
             self.revert_selection()
             # self._invalidate()
         return super().keypress(size, key)
@@ -296,7 +296,7 @@ class TitleEntry(urwid.Pile):
         self._custom_data = custom_data.copy()
         arr = []
         for i in range(len(FileEntry.schema)):
-            if (FileEntry.title_schema[i] == None):
+            if (FileEntry.title_schema[i] is None):
                 arr.append(
                     ('weight', FileEntry.schema[i]["size"], urwid.Text("")))
             else:
@@ -332,7 +332,7 @@ class PanelPathPart(urwid.Text, DispatchDoubleClick):
         return super().mouse_event(size, event, button, col, row, focus)
 
     def keypress(self, size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
-        if key == 'enter':
+        if key == Manager.KeyMap.enter():
             self.move()
             return None
         return super().keypress(size, key)

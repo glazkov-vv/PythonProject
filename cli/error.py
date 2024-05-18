@@ -2,6 +2,7 @@ import asyncio
 import urwid
 
 from cli.stackedview import StackedView
+from cli.manager import Manager
 
 
 class ErrorWindow(urwid.Filler, StackedView):
@@ -18,7 +19,7 @@ class ErrorWindow(urwid.Filler, StackedView):
         super().__init__(message)
 
     def keypress(self, size: tuple[int, int] | tuple[()], key: str) -> str | None:
-        if (key == 'enter'):
+        if (key == Manager.KeyMap.enter()):
             self.pop_on_stack()
             return None
         return super().keypress(size, key)
