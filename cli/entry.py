@@ -2,6 +2,7 @@ from collections.abc import Hashable
 from typing import Iterable, Mapping
 from typing import Callable
 import typing
+from typing import Dict
 from typing_extensions import Literal
 import urwid
 import asyncio
@@ -24,29 +25,37 @@ class TableEntry(urwid.Widget):
     def __init__(self, data) -> None:
         super().__init__()
         self.data = data
-        self._columnContent = []
+        self._column_content = []
         ops = self.data
-        for (method, sz, type) in self.__class__.schema:
-            if (type == 'content'):
-                value = ops.__getattribute__(method)()
-                text = urwid.Text(value, wrap='ellipsis')
-                self._columnContent.append(('weight', sz, text))
-            elif (type == 'method'):
-                self._columnContent.append(
-                    ('weight', sz, self.__getattribute__(method)()))
+        init_list = []
+        for h in self.__class__.schema:
+            method = h["method"]
+            sz = h['size']
+            type = h["type"]
 
-        self._columns = urwid.Columns(self._columnContent)
+            if (type == 'text'):
+                value = method(self)
+                text = urwid.Text(value, wrap='ellipsis')
+                self._column_content.append(text)
+            elif (type == 'widget'):
+                self._column_content.append(
+                    method(self))
+            init_list.append(('weight', sz, self._column_content[-1]))
+
+        self._columns = urwid.Columns(init_list)
         self._columns = urwid.AttrMap(self._columns, "normal", "reversed")
 
     def reload_data(self):
         i = 0
         ops = self.data
-        for (method, sz, type) in self.__class__.schema:
-            if (type == 'content'):
-                self._columnContent[i][2].set_text(
-                    ops.__getattribute__(method)())
-            elif (type == 'method'):
-                self._columnContent[i][2].update_data()
+        for h in self.__class__.schema:
+            method = h["method"]
+            type = h["type"]
+            if (type == 'text'):
+                self._column_content[i].set_text(
+                    method(self))
+            elif (type == 'widget'):
+                self._column_content[i].update_data()
             i += 1
 
     def render(self, size: tuple[int], focus: bool = False) -> urwid.Canvas:
@@ -190,8 +199,28 @@ class FileEntry(TableEntry):
     def get_file_name(self) -> FileName:
         return FileName(self._custom_data)
 
-    schema = [("get_file_name", 3, 'method'), ("getFormattedSize", 1, 'content'),
-              ("get_modified_formatted", 1, 'content'), ("get_selectable", 0.5, 'method')]
+    def get_formatted_size(self):
+        return self.data.getFormattedSize()
+
+    def get_modified_formatted(self):
+        return self.data.get_modified_formatted()
+    schema = [
+        {'method': get_file_name,
+         'size': 3,
+         'type': 'widget'},
+        {'method': get_formatted_size,
+         'size': 1,
+         'type': 'text'},
+        {'method': get_modified_formatted,
+         'size': 1,
+         'type': 'text'},
+        {'method': get_selectable,
+         'size': 0.5,
+         'type': 'widget'}
+    ]
+
+    # schema = [("get_file_name", 3, 'method'), ("", 1, 'content'),
+    #          ("get_modified_formatted", 1, 'content'), ("get_selectable", 0.5, 'method')]
     title_schema = [("name", "name"), ("size", "size"),
                     ("last modified", "modified"), None]
 
@@ -207,16 +236,11 @@ class FileEntry(TableEntry):
         self._invalidate()
 
     def mouse_event(self, size: tuple[int], event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
-        # print ("KABOOM")
         if (button == 1 and event == "mouse press"):
             if (time.time()-self._lastClick < 0.2):
                 self.doubleClick()
             self._lastClick = time.time()
 
-        if (not focus and self.data.isDir()):
-            pass
-
-            # raise urwid.ExitMainLoop()
         return self._columns.mouse_event(size, event, button, col, row, focus)
 
     def get_color(self) -> str:
@@ -258,8 +282,8 @@ class FileEntry(TableEntry):
             inv = True
         self.focused = focus
         if inv:
-            for h in self._columnContent:
-                h[2]._invalidate()
+            for h in self._column_content:
+                h._invalidate()
         return super().render(size, focus)
 
 
@@ -270,10 +294,11 @@ class TitleEntry(urwid.Pile):
         arr = []
         for i in range(len(FileEntry.schema)):
             if (FileEntry.title_schema[i] == None):
-                arr.append(('weight', FileEntry.schema[i][1], urwid.Text("")))
+                arr.append(
+                    ('weight', FileEntry.schema[i]["size"], urwid.Text("")))
             else:
                 # pass
-                arr.append(('weight', FileEntry.schema[i][1], Title(
+                arr.append(('weight', FileEntry.schema[i]["size"], Title(
                     self._custom_data, FileEntry.title_schema[i][0], FileEntry.title_schema[i][1], None)))
 
         super().__init__(
