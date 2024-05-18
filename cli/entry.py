@@ -8,6 +8,7 @@ import urwid
 import asyncio
 import time
 import os
+from cli.dispatchdoubleclick import DispatchDoubleClick
 from cli.error import ErrorWindow
 from cli.manager import Manager
 from cli.props import PropertyWindow, PropertyWindowMock
@@ -179,12 +180,11 @@ class Title(urwid.AttrMap):
         super().__init__(self._text, "default", "reversed")
 
 
-class FileEntry(TableEntry):
+class FileEntry(TableEntry, DispatchDoubleClick):
     def __init__(self, custom_data, data: File, pos: int, workspace: Workspace) -> None:
         data.subscribe(self.rebuild)
         self._custom_data = custom_data.copy()
         self.pos = pos
-        self._lastClick = 0
         self._workspace = workspace
         self._custom_data["FileEntry"] = self
         self.focused = False
@@ -219,10 +219,6 @@ class FileEntry(TableEntry):
          'type': 'widget'}
     ]
 
-    # schema = [("get_file_name", 3, 'method'), ("", 1, 'content'),
-    #          ("get_modified_formatted", 1, 'content'), ("get_selectable", 0.5, 'method')]
-    # title_schema = [("name", "name"), ("size", "size"),
-    #               ("last modified", "modified"), None]
     title_schema = [
         {"name": "name",
          "field": "name"},
@@ -238,17 +234,15 @@ class FileEntry(TableEntry):
             return
         self._workspace.set_selected(self.data, not self.data.getSelected())
 
-    def doubleClick(self) -> None:
+    def double_click(self) -> None:
         self.step_in()
 
     def rebuild(self) -> None:
         self._invalidate()
 
     def mouse_event(self, size: tuple[int], event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
-        if (button == 1 and event == "mouse press"):
-            if (time.time()-self._lastClick < 0.2):
-                self.doubleClick()
-            self._lastClick = time.time()
+        if event == "mouse press" and button == 1:
+            self.dispatch_double_click()
 
         return self._columns.mouse_event(size, event, button, col, row, focus)
 
@@ -314,14 +308,13 @@ class TitleEntry(urwid.Pile):
             [urwid.Columns(arr, dividechars=1), urwid.Divider("-")])
 
 
-class PanelPathPart(urwid.Text):
+class PanelPathPart(urwid.Text, DispatchDoubleClick):
     def selectable(self) -> bool:
         return True
 
     def __init__(self, custom_data: dict, path: str) -> None:
         self._path = path
         self._custom_data = custom_data.copy()
-        self._last_click = 0
         super().__init__(path.split('/')[-1])
 
     def move(self):
@@ -334,9 +327,8 @@ class PanelPathPart(urwid.Text):
 
     def mouse_event(self, size: tuple[()] | tuple[int] | tuple[int, int], event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
         if event == "mouse press" and button == 1:
-            if abs(self._last_click-time.time()) < 0.2:
-                self.double_click()
-            self._last_click = time.time()
+            self.dispatch_double_click()
+
         return super().mouse_event(size, event, button, col, row, focus)
 
     def keypress(self, size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
