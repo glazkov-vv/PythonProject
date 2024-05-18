@@ -1,11 +1,12 @@
 import tempfile
 import pytest
 import os
-from PythonProject.logic.transactions.copytransaction import CopyTransaction
-from PythonProject.logic.transactions.movetransaction import MoveTransaction
+from logic.transactions import CopyTransaction
+from logic.transactions import MoveTransaction
 from logic.file import File
 from logic.workspace import Workspace
 from logic.transactions import *
+from logic.selection import Selection
 
 
 @pytest.fixture
