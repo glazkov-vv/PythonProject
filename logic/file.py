@@ -82,7 +82,7 @@ class File(Subscriptable):
         return self._par.get_kth_par(k-1)
 
     def get_depth(self) -> int:
-        if (self._par == None):
+        if (self._par is None):
             return 0
         return self._par.get_depth()+1
 

@@ -29,9 +29,9 @@ def calc_size(path: str) -> int:
     if (not os.path.isdir(path)):
         return os.path.getsize(path)
     ans = 0
-    for h in os.walk(path):
-        for hh in h[1]+h[2]:
-            ans += os.path.getsize(os.path.join(h[0], hh))
+    for curdir, subdirs, subfiles in os.walk(path):
+        for hh in subdirs+subfiles:
+            ans += os.path.getsize(os.path.join(curdir, hh))
     return ans
 
 
