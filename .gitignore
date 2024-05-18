@@ -1,6 +1,7 @@
 __pycache__/*
 */__pycache__/*
 logic/__pycache__/*
+logic/transactions/__pycache__/*
 .vscode/
 gui/*
 app2.py
