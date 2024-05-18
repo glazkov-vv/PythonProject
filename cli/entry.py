@@ -221,8 +221,17 @@ class FileEntry(TableEntry):
 
     # schema = [("get_file_name", 3, 'method'), ("", 1, 'content'),
     #          ("get_modified_formatted", 1, 'content'), ("get_selectable", 0.5, 'method')]
-    title_schema = [("name", "name"), ("size", "size"),
-                    ("last modified", "modified"), None]
+    # title_schema = [("name", "name"), ("size", "size"),
+    #               ("last modified", "modified"), None]
+    title_schema = [
+        {"name": "name",
+         "field": "name"},
+        {"name": "size",
+         "field": "size"},
+        {"name": "last modified",
+         "field": "modified"},
+        None
+    ]
 
     def revert_selection(self) -> None:
         if (self.data.getSelected() == 'unavailable'):
@@ -299,7 +308,7 @@ class TitleEntry(urwid.Pile):
             else:
                 # pass
                 arr.append(('weight', FileEntry.schema[i]["size"], Title(
-                    self._custom_data, FileEntry.title_schema[i][0], FileEntry.title_schema[i][1], None)))
+                    self._custom_data, FileEntry.title_schema[i]["name"], FileEntry.title_schema[i]["field"], None)))
 
         super().__init__(
             [urwid.Columns(arr, dividechars=1), urwid.Divider("-")])
