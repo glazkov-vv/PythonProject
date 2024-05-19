@@ -74,7 +74,7 @@ jobs:
         run: sudo pyinstaller install.spec
 
       - name: Archive dist
-        run: tar -czf filemgr.tar /dist/filemgr
+        run: tar -czf filemgr.tar dist/filemgr
         
       - name: Create release
         uses: actions/create-release@v1
