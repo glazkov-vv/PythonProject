@@ -13,6 +13,7 @@ from logic.file import *
 from logic.workspace import *
 import sys
 
+sys.path.append(os.path.basename(sys.executable))
 if "-d" in sys.argv:
     # Allow other computers to attach to debugpy at this IP address and port.
     debugpy.listen(('0.0.0.0', 5678))
