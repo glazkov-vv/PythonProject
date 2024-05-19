@@ -77,6 +77,7 @@ jobs:
         run: tar -czf filemgr.tar dist/filemgr
         
       - name: Create release
+        id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -91,10 +92,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          asset_path: ./filemgr.tar
+          asset_name: filemgr.tar
+          asset_content_type: application/tar
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./filemgr.tar  # Adjust this to your actual file path
-          asset_name: filemgr.tar  # Adjust this to your actual file name
-          asset_content_type: application/tar  # Adjust this to the correct MIME type
+
        
     
     
