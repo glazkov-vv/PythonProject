@@ -11,7 +11,7 @@ class FilePermissions:
 
     @classmethod
     def perms_from_stat(cls, val: os.stat_result) -> list:
-        ans = [None]*9
+        ans = [None] * 9
         for i in range(9):
             ans[i] = (val.st_mode & cls.mapping[i]) != 0
         return ans
@@ -20,5 +20,5 @@ class FilePermissions:
     def int_from_perms(cls, val: list) -> int:
         ans = 0
         for i in range(9):
-            ans |= val[i]*cls.mapping[i]
+            ans |= val[i] * cls.mapping[i]
         return ans

@@ -32,13 +32,13 @@ class File(Subscriptable):
     def getSize(self) -> int | None:
         try:
             return os.path.getsize(self._path)
-        except:
+        except BaseException:
             return -1
 
     def get_pars(self) -> list:
         cur = self._par
         ans = []
-        while cur != None:
+        while cur is not None:
             ans.append(cur)
             cur = cur._par
         return ans
@@ -79,18 +79,18 @@ class File(Subscriptable):
     def get_kth_par(self, k: int):
         if (k == 0):
             return self
-        return self._par.get_kth_par(k-1)
+        return self._par.get_kth_par(k - 1)
 
     def get_depth(self) -> int:
         if (self._par is None):
             return 0
-        return self._par.get_depth()+1
+        return self._par.get_depth() + 1
 
     def add_depth(self) -> str:
-        return "|--"*self.get_depth()
+        return "|--" * self.get_depth()
 
     def get_name_formatted(self) -> str:
-        return self.add_depth()+self.get_name()
+        return self.add_depth() + self.get_name()
 
     def get_directory(self) -> str:
         return os.path.dirname(self._path)
@@ -98,11 +98,12 @@ class File(Subscriptable):
     def get_modified(self) -> datetime:
         try:
             return datetime.fromtimestamp(int(os.path.getmtime(self._path)))
-        except:
+        except BaseException:
             return datetime.fromtimestamp(0)
 
     def get_modified_formatted(self) -> str:
         time = self.get_modified()
-        return "NaN" if time == datetime.fromtimestamp(0) else humanize.naturaltime(time)
+        return "NaN" if time == datetime.fromtimestamp(
+            0) else humanize.naturaltime(time)
 
     props = {"name": get_name, "size": getSize, "modified": get_modified}

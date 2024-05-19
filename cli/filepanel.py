@@ -9,7 +9,8 @@ import typing
 
 class FilePanel(urwid.Filler):
 
-    def __init__(self, custom_data, workspace: Workspace, pos: int = 0) -> None:
+    def __init__(self, custom_data, workspace: Workspace,
+                 pos: int = 0) -> None:
         self._workspace = workspace
         self.pos = pos
         self._custom_data = custom_data.copy()
@@ -32,7 +33,7 @@ class FilePanel(urwid.Filler):
 
     def report_focus(self, child: urwid.Widget):
         if (self._infocus != child):
-            if (self._infocus != None):
+            if (self._infocus is not None):
                 self._infocus.clear_focus()
             self._infocus = child
 
@@ -69,19 +70,22 @@ class FilePanel(urwid.Filler):
             Manager.operation_mode = mode
         return None
 
-    def keypress(self, size: tuple[int, int] | tuple[()], key: str) -> str | None:
+    def keypress(self, size: tuple[int, int] |
+                 tuple[()], key: str) -> str | None:
         if (key == Manager.KeyMap.exit()):
             Manager.set_lock(None)
 
-        if (key == Manager.KeyMap.delete() and Manager.operation_mode == 'normal'):
+        if (key == Manager.KeyMap.delete()
+                and Manager.operation_mode == 'normal'):
             sel = self._workspace.get_selection()
             asyncio.create_task(
                 self._custom_data["TwoTabs"].execute_transaction(RemoveTransaction(sel)))
             return None
 
-        if (key == Manager.KeyMap.treeview() and Manager.operation_mode == 'normal'):
+        if (key == Manager.KeyMap.treeview()
+                and Manager.operation_mode == 'normal'):
             res = self._workspace.set_tree(not self._workspace.get_tree())
-            if (res != None):
+            if (res is not None):
                 self._custom_data["TwoTabs"].push_on_stack(ErrorWindow(res))
             return None
 
@@ -98,17 +102,19 @@ class FilePanel(urwid.Filler):
 
         if (key == Manager.KeyMap.up()):
             res = self._workspace.step_up()
-            if (res != None):
+            if (res is not None):
                 self._custom_data["TwoTabs"].push_on_stack(ErrorWindow(res))
             return None
 
         return super().keypress(size, key)
 
-    def render(self, size: tuple[int, int] | tuple[int], focus: bool = False) -> urwid.CompositeCanvas:
+    def render(self, size: tuple[int, int] | tuple[int],
+               focus: bool = False) -> urwid.CompositeCanvas:
         return super().render(size, focus)
 
     def doubleClick():
         pass
 
-    def mouse_event(self, size: tuple[int, int] | tuple[int], event, button: int, col: int, row: int, focus: bool) -> bool | None:
+    def mouse_event(self, size: tuple[int, int] | tuple[int], event,
+                    button: int, col: int, row: int, focus: bool) -> bool | None:
         return super().mouse_event(size, event, button, col, row, focus)

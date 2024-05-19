@@ -10,13 +10,14 @@ from logic.subscriptable import Subscriptable
 
 def build_table(path=None, tree=False) -> Iterable[File]:
     if (not tree):
-        return [File.fromPath(os.path.join("" if path is None else path, h)) for h in listdir(path)]
+        return [File.fromPath(os.path.join(
+            "" if path is None else path, h)) for h in listdir(path)]
 
     walkres = os.walk(path)
     ans = []
     binds = {}
     for (dir, dirnames, filenames) in walkres:
-        total = dirnames+filenames
+        total = dirnames + filenames
         for h in total:
             cfile = File.fromPath(os.path.join(
                 dir, h), None if dir not in binds else binds[dir])
@@ -64,19 +65,19 @@ class Workspace(Subscriptable):
                 (x, y) = (y, x)
                 c *= -1
 
-            y = y.get_kth_par(y.get_depth()-x.get_depth())
+            y = y.get_kth_par(y.get_depth() - x.get_depth())
             if y == x:
-                return -1*c
+                return -1 * c
 
             if (x._par != y._par):
-                return cmp(x._par, y._par, reverse)*c
+                return cmp(x._par, y._par, reverse) * c
             xkey = File.props[prop](x)
             ykey = File.props[prop](y)
             if xkey < ykey:
-                return -1*c*reverse
+                return -1 * c * reverse
             if xkey == ykey:
-                return (-1 if id(x) < id(y) else 1)*c*reverse
-            return 1*c*reverse
+                return (-1 if id(x) < id(y) else 1) * c * reverse
+            return 1 * c * reverse
 
         def finalcmp(arg):
             def wrap(x, y):
@@ -134,4 +135,5 @@ class Workspace(Subscriptable):
         return self.step_in(os.path.dirname(self._path))
 
     def get_selection(self) -> Selection:
-        return Selection([h.getPath() for h in self._contents if h.getSelected() == True])
+        return Selection([h.getPath()
+                         for h in self._contents if h.getSelected() == True])

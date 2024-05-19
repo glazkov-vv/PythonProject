@@ -16,14 +16,15 @@ class MakeDirectoryTransaction(Transaction):
         yield "Folder"
         i = 0
         while True:
-            yield "Folder "+str(i)
+            yield "Folder " + str(i)
             i += 1
 
     def __init__(self, path) -> None:
         self._path = path
         super().__init__()
 
-    async def execute(self) -> asyncio.Coroutine[asyncio.Any, asyncio.Any, None | str]:
+    async def execute(
+            self) -> asyncio.Coroutine[asyncio.Any, asyncio.Any, None | str]:
         if (not os.access(self._path, os.W_OK)):
             return f"Can't write to {self._path}"
         for h in self.get_name():

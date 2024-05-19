@@ -12,7 +12,8 @@ class Transaction:
     def __init__(self) -> None:
         pass
 
-    async def execute(self, progress_callback: None | Callable = None) -> None | str:
+    async def execute(self, progress_callback: None |
+                      Callable = None) -> None | str:
         raise NotImplementedError()
 
     def revert(self) -> Transaction:
@@ -30,7 +31,7 @@ def calc_size(path: str) -> int:
         return os.path.getsize(path)
     ans = 0
     for curdir, subdirs, subfiles in os.walk(path):
-        for hh in subdirs+subfiles:
+        for hh in subdirs + subfiles:
             ans += os.path.getsize(os.path.join(curdir, hh))
     return ans
 

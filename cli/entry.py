@@ -81,14 +81,16 @@ class Selectable(urwid.Text):
         super().set_text(
             Selectable.mapping[self._custom_data["FileEntry"].is_selected()])
 
-    def mouse_event(self, size: tuple[()] | tuple[int] | tuple[int, int], event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
+    def mouse_event(self, size: tuple[()] | tuple[int] | tuple[int, int],
+                    event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
         if (button == 1 and event == 'mouse press'):
             self._custom_data["FileEntry"].revert_selection()
 
     def selectable(self) -> bool:
         return True
 
-    def render(self, size: tuple[int] | tuple[()], focus: bool = False) -> urwid.TextCanvas:
+    def render(self, size: tuple[int] | tuple[()],
+               focus: bool = False) -> urwid.TextCanvas:
         return super().render(size, focus)
 
 
@@ -100,7 +102,7 @@ class FileName(urwid.Widget):
         return self._custom_data["FileEntry"].get_color()
 
     def get_focused(self) -> str:
-        return "rev "+self.get_normal()
+        return "rev " + self.get_normal()
 
     def __init__(self, custom_data: dict) -> None:
         super().__init__()
@@ -117,7 +119,8 @@ class FileName(urwid.Widget):
     def selectable(self) -> bool:
         return False
 
-    def render(self, size: tuple[int] | tuple[()], focus: bool = False) -> urwid.TextCanvas:
+    def render(self, size: tuple[int] | tuple[()],
+               focus: bool = False) -> urwid.TextCanvas:
         mp = urwid.AttrMap(self._text, {None: (self.get_focused(
         ) if self._custom_data["FileEntry"].focused else self.get_normal())})
         return mp.render(size, focus)
@@ -155,7 +158,8 @@ class Title(urwid.AttrMap):
         self._custom_data["Workspace"].set_sort(
             self._prop, "asc" if ctype != "asc" else "desc")
 
-    def keypress(self, size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
+    def keypress(self, size: tuple[()] | tuple[int]
+                 | tuple[int, int], key: str) -> str | None:
         if (key == Manager.KeyMap.toggle()):
             self.next_state()
         return super().keypress(size, key)
@@ -163,14 +167,16 @@ class Title(urwid.AttrMap):
     def double_click(self):
         self.next_state()
 
-    def mouse_event(self, size: tuple[()] | tuple[int] | tuple[int, int], event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
+    def mouse_event(self, size: tuple[()] | tuple[int] | tuple[int, int],
+                    event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
         if (event == "mouse press" and button == 1):
-            if (time.time()-self._last_click < 0.2):
+            if (time.time() - self._last_click < 0.2):
                 self.double_click()
             self._last_click = time.time()
         return super().mouse_event(size, event, button, col, row, focus)
 
-    def __init__(self, custom_data, name: str, property: str, callback: Callable) -> None:
+    def __init__(self, custom_data, name: str, property: str,
+                 callback: Callable) -> None:
         self._custom_data = custom_data.copy()
         self._name = name
         self._prop = property
@@ -181,7 +187,8 @@ class Title(urwid.AttrMap):
 
 
 class FileEntry(TableEntry, DispatchDoubleClick):
-    def __init__(self, custom_data, data: File, pos: int, workspace: Workspace) -> None:
+    def __init__(self, custom_data, data: File, pos: int,
+                 workspace: Workspace) -> None:
         data.subscribe(self.rebuild)
         self._custom_data = custom_data.copy()
         self.pos = pos
@@ -240,7 +247,8 @@ class FileEntry(TableEntry, DispatchDoubleClick):
     def rebuild(self) -> None:
         self._invalidate()
 
-    def mouse_event(self, size: tuple[int], event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
+    def mouse_event(self, size: tuple[int], event: str, button: int,
+                    col: int, row: int, focus: bool) -> bool | None:
         if event == "mouse press" and button == 1:
             self.dispatch_double_click()
 
@@ -258,16 +266,17 @@ class FileEntry(TableEntry, DispatchDoubleClick):
         if (self.data.isDir()):
             # content.update(self.data.getPath(),self.pos)
             res = self._workspace.step_in(self.data.getPath())
-            if (res != None):
+            if (res is not None):
                 self._custom_data["TwoTabs"].push_on_stack(ErrorWindow(res))
         else:
             command = ConfigManager.get_command(self.data.getPath())
-            if command != None:
+            if command is not None:
                 os.system(command)
                 WorkspaceManager.rebuild_all()
                 Manager.global_redraw()
 
-    def keypress(self, size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
+    def keypress(self, size: tuple[()] | tuple[int]
+                 | tuple[int, int], key: str) -> str | None:
         super().keypress(size, key)
         if (key == Manager.KeyMap.enter()):
             self.step_in()
@@ -319,19 +328,21 @@ class PanelPathPart(urwid.Text, DispatchDoubleClick):
 
     def move(self):
         res = self._custom_data["Workspace"].step_in(self._path)
-        if (res != None):
+        if (res is not None):
             self._custom_data["TwoTabs"].push_on_stack(ErrorWindow(res))
 
     def double_click(self):
         self.move()
 
-    def mouse_event(self, size: tuple[()] | tuple[int] | tuple[int, int], event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
+    def mouse_event(self, size: tuple[()] | tuple[int] | tuple[int, int],
+                    event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
         if event == "mouse press" and button == 1:
             self.dispatch_double_click()
 
         return super().mouse_event(size, event, button, col, row, focus)
 
-    def keypress(self, size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
+    def keypress(self, size: tuple[()] | tuple[int]
+                 | tuple[int, int], key: str) -> str | None:
         if key == Manager.KeyMap.enter():
             self.move()
             return None
@@ -343,11 +354,11 @@ class PanelPath(urwid.Pile):
 
         paths = custom_data["Workspace"].get_path().split('/')
         objs = [urwid.Text("/")]
-        for i in range(2, len(paths)+1):
-            temp = "/"+"/".join(paths[1:i])
+        for i in range(2, len(paths) + 1):
+            temp = "/" + "/".join(paths[1:i])
             objs.append(urwid.AttrMap(PanelPathPart(
                 custom_data, temp), "normal", "reversed"))
             objs.append(urwid.Text("/"))
 
         super().__init__([urwid.Columns([('pack', h)
-                                         for h in objs], dividechars=0)]+[urwid.Divider("-")])
+                                         for h in objs], dividechars=0)] + [urwid.Divider("-")])

@@ -44,10 +44,10 @@ class CopyTransaction(Transaction):
                 walkres = None
                 try:
                     walkres = os.walk(source)
-                except:
+                except BaseException:
                     return f"Permission error while traversing directory {source}"
                 for curdir, subdirs, subfiles in walkres:
-                    for hhh in subdirs+subfiles:
+                    for hhh in subdirs + subfiles:
                         if (not os.access(os.path.join(curdir, hhh), os.R_OK)):
                             return f"Cannot read file {hhh} from {source}"
 
@@ -64,8 +64,8 @@ class CopyTransaction(Transaction):
         async def reports(cancellation: asyncio.Event) -> None:
             while not cancellation.is_set():
                 cur_size = calc_total_size([h[1] for h in self._instructions])
-                share = cur_size/total_size if total_size != 0 else 1
-                if (self._progress_callback != None):
+                share = cur_size / total_size if total_size != 0 else 1
+                if (self._progress_callback is not None):
                     self._progress_callback(share)
                 await asyncio.sleep(0.2)
 

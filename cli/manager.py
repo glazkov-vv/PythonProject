@@ -83,17 +83,6 @@ class Manager:
         def update() -> str:
             return "f5"
 
-    # keymap = {"enter": "enter",
-    #           "props": "f12",
-    #           "exit": "esc",
-    #           "mkdir": "m",
-    #           "tabchange": "tab",
-    #           "treeview": "t",
-    #           "cut": "x",
-    #           "copy": "c",
-    #           "paste": "v",
-    #           "undo": "z"}
-
     @classmethod
     def push_to_queue(cls, transaction: Transaction) -> None:
         cls._queue.append(transaction)

@@ -30,7 +30,8 @@ class MoveTransaction(Transaction):
     def set_callback(self, callback: Callable) -> None:
         self._progress_callback = callback
 
-    async def execute(self, progress_callback: None | Callable[..., Any] = None) -> None | str:
+    async def execute(self, progress_callback: None |
+                      Callable[..., Any] = None) -> None | str:
         for source, dest in self._instructions:
             if (os.path.exists(dest)):
                 return f"File {dest} already exists"
@@ -48,8 +49,8 @@ class MoveTransaction(Transaction):
         async def reports(cancellation: asyncio.Event) -> None:
             while not cancellation.is_set():
                 cur_size = calc_total_size([h[1] for h in self._instructions])
-                share = cur_size/total_size if total_size != 0 else 1
-                if (self._progress_callback != None):
+                share = cur_size / total_size if total_size != 0 else 1
+                if (self._progress_callback is not None):
                     self._progress_callback(share)
                 await asyncio.sleep(0.2)
 
@@ -60,7 +61,8 @@ class MoveTransaction(Transaction):
         WorkspaceManager.rebuild_all()
 
     def revert(self) -> MoveTransaction:
-        return MoveTransaction._from_instructions([(h[1], h[0]) for h in self._instructions])
+        return MoveTransaction._from_instructions(
+            [(h[1], h[0]) for h in self._instructions])
 
 
 class MoveSingleTransaction(MoveTransaction):

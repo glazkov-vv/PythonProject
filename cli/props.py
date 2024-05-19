@@ -31,11 +31,11 @@ class PropertyWindow(urwid.Widget, ExecutesTransactions):
         for i in range(3):
             in_btns = [urwid.Text(roles[i])]
             for j in range(3):
-                num = 3*i+j
+                num = 3 * i + j
                 self._permissions_table.append(
                     urwid.CheckBox(actions[j], permissions_values[num]))
                 in_btns.append(
-                    self._permissions_table[len(self._permissions_table)-1])
+                    self._permissions_table[len(self._permissions_table) - 1])
 
             btn_rows.append(urwid.Columns(in_btns))
 
@@ -54,14 +54,17 @@ class PropertyWindow(urwid.Widget, ExecutesTransactions):
 
     focus = None
 
-    def render(self, size: tuple[()] | tuple[int] | tuple[int, int], focus: bool = False) -> urwid.Canvas:
+    def render(self, size: tuple[()] | tuple[int] |
+               tuple[int, int], focus: bool = False) -> urwid.Canvas:
 
         return self._content.render(size, focus)
 
-    def mouse_event(self, size: tuple[()] | tuple[int] | tuple[int, int], event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
+    def mouse_event(self, size: tuple[()] | tuple[int] | tuple[int, int],
+                    event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
         return self._content.mouse_event(size, event, button, col, row, focus)
 
-    def keypress(self, size: tuple[()] | tuple[int] | tuple[int, int], key: str) -> str | None:
+    def keypress(self, size: tuple[()] | tuple[int]
+                 | tuple[int, int], key: str) -> str | None:
         if (key == Manager.KeyMap.exit()):
             self.pop_on_stack()
             return None
@@ -76,7 +79,7 @@ class PropertyWindow(urwid.Widget, ExecutesTransactions):
         return self._name_edit.get_edit_text()
 
     def get_permissions(self) -> list:
-        ans = [None]*9
+        ans = [None] * 9
         for i in range(9):
             ans[i] = self._permissions_table[i].get_state()
         return ans

@@ -22,5 +22,5 @@ class ProgressWindow(urwid.Filler, StackedView):
 
     def callback(self, value: float) -> None:
         # self.set_body(urwid.Text(f"Progress {str(value)}"))
-        self._progress_bar.current = int(value*100)
+        self._progress_bar.current = int(value * 100)
         Manager.loop.draw_screen()
