@@ -33,11 +33,11 @@ class MoveTransaction(Transaction):
     async def execute(self, progress_callback: None |
                       Callable[..., Any] = None) -> None | str:
         for source, dest in self._instructions:
-            if (os.path.exists(dest)):
+            if os.path.exists(dest):
                 return f"File {dest} already exists"
-            if (not os.access(os.path.dirname(dest), os.W_OK)):
+            if not os.access(os.path.dirname(dest), os.W_OK):
                 return f"Cannot create file {dest}"
-            if (not os.access(source, os.W_OK)):
+            if not os.access(source, os.W_OK):
                 return f"Cannot move file {source}"
 
         total_size = calc_total_size([source for h in self._instructions])
@@ -50,7 +50,7 @@ class MoveTransaction(Transaction):
             while not cancellation.is_set():
                 cur_size = calc_total_size([h[1] for h in self._instructions])
                 share = cur_size / total_size if total_size != 0 else 1
-                if (self._progress_callback is not None):
+                if self._progress_callback is not None:
                     self._progress_callback(share)
                 await asyncio.sleep(0.2)
 

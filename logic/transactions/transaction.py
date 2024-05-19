@@ -25,9 +25,9 @@ class Transaction:
 
 
 def calc_size(path: str) -> int:
-    if (not os.path.exists(path)):
+    if not os.path.exists(path):
         return 0
-    if (not os.path.isdir(path)):
+    if not os.path.isdir(path):
         return os.path.getsize(path)
     ans = 0
     for curdir, subdirs, subfiles in os.walk(path):

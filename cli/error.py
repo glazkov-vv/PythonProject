@@ -20,7 +20,7 @@ class ErrorWindow(urwid.Filler, StackedView):
 
     def keypress(self, size: tuple[int, int] |
                  tuple[()], key: str) -> str | None:
-        if (key == Manager.KeyMap.enter()):
+        if key == Manager.KeyMap.enter():
             self.pop_on_stack()
             return None
         return super().keypress(size, key)

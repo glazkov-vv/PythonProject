@@ -21,7 +21,7 @@ class Manager:
     @classmethod
     def set_lock(cls, value: int | None) -> None:
         cls._locked_on = value
-        if (value != None):
+        if value is not None:
             cls.current_two_tabs.amend_focus(value)
 
     _queue = []
@@ -89,7 +89,7 @@ class Manager:
 
     @classmethod
     def pop_from_queue(cls) -> Transaction | None:
-        if (len(cls._queue) == 0):
+        if len(cls._queue) == 0:
             return None
         return cls._queue.pop()
 

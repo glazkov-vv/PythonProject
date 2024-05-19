@@ -33,14 +33,14 @@ class CopyTransaction(Transaction):
 
     async def execute(self) -> None | str:
         for source, dest in self._instructions:
-            if (os.path.exists(dest)):
+            if os.path.exists(dest):
                 return f"File {dest} already exists"
-            if (not os.access(os.path.dirname(dest), os.W_OK)):
+            if not os.access(os.path.dirname(dest), os.W_OK):
                 return f"Cannot create file {dest}"
-            if (not os.access(source, os.R_OK)):
+            if not os.access(source, os.R_OK):
                 return f"Cannot read file {source}"
 
-            if (os.path.isdir(source)):
+            if os.path.isdir(source):
                 walkres = None
                 try:
                     walkres = os.walk(source)
@@ -48,7 +48,7 @@ class CopyTransaction(Transaction):
                     return f"Permission error while traversing directory {source}"
                 for curdir, subdirs, subfiles in walkres:
                     for hhh in subdirs + subfiles:
-                        if (not os.access(os.path.join(curdir, hhh), os.R_OK)):
+                        if not os.access(os.path.join(curdir, hhh), os.R_OK):
                             return f"Cannot read file {hhh} from {source}"
 
         total_size = calc_total_size([source for h in self._instructions])
@@ -56,7 +56,7 @@ class CopyTransaction(Transaction):
         def real_op():
             i = 0
             for h in self._instructions:
-                if (os.path.isdir(source)):
+                if os.path.isdir(source):
                     shutil.copytree(source, dest)
                 else:
                     shutil.copy(source, dest)
@@ -65,7 +65,7 @@ class CopyTransaction(Transaction):
             while not cancellation.is_set():
                 cur_size = calc_total_size([h[1] for h in self._instructions])
                 share = cur_size / total_size if total_size != 0 else 1
-                if (self._progress_callback is not None):
+                if self._progress_callback is not None:
                     self._progress_callback(share)
                 await asyncio.sleep(0.2)
 

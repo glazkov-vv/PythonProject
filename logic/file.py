@@ -77,12 +77,12 @@ class File(Subscriptable):
         return os.path.basename(self._path)
 
     def get_kth_par(self, k: int):
-        if (k == 0):
+        if k == 0:
             return self
         return self._par.get_kth_par(k - 1)
 
     def get_depth(self) -> int:
-        if (self._par is None):
+        if self._par is None:
             return 0
         return self._par.get_depth() + 1
 

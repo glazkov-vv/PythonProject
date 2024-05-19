@@ -65,10 +65,10 @@ class PropertyWindow(urwid.Widget, ExecutesTransactions):
 
     def keypress(self, size: tuple[()] | tuple[int]
                  | tuple[int, int], key: str) -> str | None:
-        if (key == Manager.KeyMap.exit()):
+        if key == Manager.KeyMap.exit():
             self.pop_on_stack()
             return None
-        if (key == Manager.KeyMap.enter()):
+        if key == Manager.KeyMap.enter():
             asyncio.create_task(self.apply())
             return None
             # self.apply()
@@ -89,11 +89,11 @@ class PropertyWindow(urwid.Widget, ExecutesTransactions):
 
     async def apply(self) -> None:
 
-        if (self.get_permissions() != self._init_permissions):
+        if self.get_permissions() != self._init_permissions:
             t1 = ChangePermissionTransaction(
                 self._file.getPath(), self._init_permissions, self.get_permissions())
             await self.execute_transaction(t1)
-        if (self.get_name() != self._init_name):
+        if self.get_name() != self._init_name:
             t2 = MoveSingleTransaction(self._file.getPath(), os.path.join(
                 self._file.get_directory(), self.get_name()))
             await self.execute_transaction(t2)

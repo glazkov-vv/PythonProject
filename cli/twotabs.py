@@ -65,28 +65,28 @@ class TwoTabs(urwid.WidgetContainerMixin, urwid.Widget, ExecutesTransactions):
 
     def keypress(self, size: tuple[()] | tuple[int]
                  | tuple[int, int], key: str) -> str | None:
-        if (key == Manager.KeyMap.undo()):
-            if (Manager.operation_mode == "normal"):
+        if key == Manager.KeyMap.undo():
+            if Manager.operation_mode == "normal":
                 val = Manager.pop_from_queue()
-                if (val is not None):
+                if val is not None:
                     asyncio.create_task(self.execute_transaction(val, True))
 
                 return None
-        if (key == Manager.KeyMap.exit() and Manager.operation_mode != 'normal'):
+        if key == Manager.KeyMap.exit() and Manager.operation_mode != 'normal':
             self.set_normal_mode()
             return None
 
-        if (key == Manager.KeyMap.update()):
-            if (Manager.operation_mode == "normal"):
+        if key == Manager.KeyMap.update():
+            if Manager.operation_mode == "normal":
                 for h in Manager.active_workspaces:
                     h.rebuild()
                 return None
-        if (key == Manager.KeyMap.paste()):
-            if (Manager.get_lock() is not None):
+        if key == Manager.KeyMap.paste():
+            if Manager.get_lock() is not None:
                 asyncio.create_task(self.paste())
             return None
         if key == Manager.KeyMap.tabchange():
-            if (Manager.get_lock() is None):
+            if Manager.get_lock() is None:
                 self.contents[0][0].focus_position ^= 1
             return None
 
@@ -94,7 +94,7 @@ class TwoTabs(urwid.WidgetContainerMixin, urwid.Widget, ExecutesTransactions):
 
     def mouse_event(self, size: tuple[()] | tuple[int] | tuple[int, int],
                     event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
-        if (Manager.operation_mode == "normal"):
+        if Manager.operation_mode == "normal":
             return self.contents[0][0].mouse_event(
                 size, event, button, col, row, True)
         else:
@@ -104,7 +104,7 @@ class TwoTabs(urwid.WidgetContainerMixin, urwid.Widget, ExecutesTransactions):
 
     def render(self, size: tuple[int, int],
                focus: bool = False) -> urwid.Canvas:
-        (maxcol, maxrow) = size
+        maxcol, maxrow = size
 
         return self.contents[0][0].render(size, focus)
 

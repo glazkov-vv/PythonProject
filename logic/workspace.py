@@ -45,7 +45,7 @@ class Workspace(Subscriptable):
         return self._tree
 
     def set_tree(self, val: bool) -> None | str:
-        if (len(build_table(self._path, val)) > 1000):
+        if len(build_table(self._path, val)) > 1000:
             return "Too many files"
         self._tree = val
 
@@ -54,22 +54,21 @@ class Workspace(Subscriptable):
     def rebuild(self, should_update: bool = False) -> None:
         self._contents = build_table(self.get_path(), self._tree)
 
-        (prop, type) = self._sort
+        prop, type = self._sort
         reverse = -1 if type == "desc" else 1
 
         def cmp(x: File, y: File, reverse: int) -> int:
             c = 1
-            if ({x.get_name(), y.get_name()} == {"navi", "aaa"}):
-                pass
-            if (x.get_depth() > y.get_depth()):
-                (x, y) = (y, x)
+
+            if x.get_depth() > y.get_depth():
+                x, y = y, x
                 c *= -1
 
             y = y.get_kth_par(y.get_depth() - x.get_depth())
             if y == x:
                 return -1 * c
 
-            if (x._par != y._par):
+            if x._par != y._par:
                 return cmp(x._par, y._par, reverse) * c
             xkey = File.props[prop](x)
             ykey = File.props[prop](y)
@@ -113,19 +112,19 @@ class Workspace(Subscriptable):
         return [h for h in self._contents if file in h.get_pars()]
 
     def set_selected(self, file: File, value: bool) -> int:
-        if (value == False):
+        if value == False:
             file.setSelected(False)
             for h in self.get_children(file):
                 h.setSelected(False)
-        if (value == True):
+        if value == True:
             file.setSelected(True)
             for h in self.get_children(file):
                 h.setSelected('unavailable')
 
     def step_in(self, path) -> None | str:
-        if (not os.access(path, os.X_OK) or not os.access(path, os.R_OK)):
+        if not os.access(path, os.X_OK) or not os.access(path, os.R_OK):
             return "Insufficient permissions to read the directory"
-        if (len(build_table(path, self._tree)) > 1000):
+        if len(build_table(path, self._tree)) > 1000:
             return "Too many files"
         self._path = path
         self.rebuild()

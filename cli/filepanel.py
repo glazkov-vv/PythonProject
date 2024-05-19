@@ -32,8 +32,8 @@ class FilePanel(urwid.Filler):
         return self._workspace.get_sort()
 
     def report_focus(self, child: urwid.Widget):
-        if (self._infocus != child):
-            if (self._infocus is not None):
+        if self._infocus != child:
+            if self._infocus is not None:
                 self._infocus.clear_focus()
             self._infocus = child
 
@@ -51,7 +51,7 @@ class FilePanel(urwid.Filler):
         oldpath = self.body.get_focus_path()
         self.body = cont
 
-        if (in_focus):
+        if in_focus:
             self.body.set_focus_path(oldpath)
             self.body.set_focus_pending = None
 
@@ -59,7 +59,7 @@ class FilePanel(urwid.Filler):
 
     def _start_selection(self, mode) -> None | str:
         Manager.active_selection = self._workspace.get_selection()
-        if (Manager.active_selection.empty()):
+        if Manager.active_selection.empty():
             async def fun():
                 self._custom_data["TwoTabs"].push_on_stack(
                     ErrorWindow("No files selected"))
@@ -72,7 +72,7 @@ class FilePanel(urwid.Filler):
 
     def keypress(self, size: tuple[int, int] |
                  tuple[()], key: str) -> str | None:
-        if (key == Manager.KeyMap.exit()):
+        if key == Manager.KeyMap.exit():
             Manager.set_lock(None)
 
         if (key == Manager.KeyMap.delete()
@@ -85,24 +85,24 @@ class FilePanel(urwid.Filler):
         if (key == Manager.KeyMap.treeview()
                 and Manager.operation_mode == 'normal'):
             res = self._workspace.set_tree(not self._workspace.get_tree())
-            if (res is not None):
+            if res is not None:
                 self._custom_data["TwoTabs"].push_on_stack(ErrorWindow(res))
             return None
 
-        if (key == Manager.KeyMap.mkdir()):
+        if key == Manager.KeyMap.mkdir():
             asyncio.create_task(
                 self._custom_data["TwoTabs"].mkdir(self.getPath()))
             return None
 
-        if (key == Manager.KeyMap.cut() and Manager.operation_mode == "normal"):
+        if key == Manager.KeyMap.cut() and Manager.operation_mode == "normal":
             return self._start_selection("select_for_move")
             # self.contents[0][0]
-        if (key == Manager.KeyMap.copy() and Manager.operation_mode == "normal"):
+        if key == Manager.KeyMap.copy() and Manager.operation_mode == "normal":
             return self._start_selection("select_for_copy")
 
-        if (key == Manager.KeyMap.up()):
+        if key == Manager.KeyMap.up():
             res = self._workspace.step_up()
-            if (res is not None):
+            if res is not None:
                 self._custom_data["TwoTabs"].push_on_stack(ErrorWindow(res))
             return None
 

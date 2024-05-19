@@ -17,7 +17,7 @@ class ConfigManager:
     def get_command(cls, path: str) -> str | None:
         for h in cls.apps_mapping.keys():
             regex = h
-            if (re.match(regex, path)):
+            if re.match(regex, path):
                 return cls.apps_mapping[h].replace("$", path)
 
         return None

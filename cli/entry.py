@@ -83,7 +83,7 @@ class Selectable(urwid.Text):
 
     def mouse_event(self, size: tuple[()] | tuple[int] | tuple[int, int],
                     event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
-        if (button == 1 and event == 'mouse press'):
+        if button == 1 and event == 'mouse press':
             self._custom_data["FileEntry"].revert_selection()
 
     def selectable(self) -> bool:
@@ -126,13 +126,13 @@ class FileName(urwid.Widget):
         return mp.render(size, focus)
 
 
-class Title(urwid.AttrMap):
+class Title(urwid.AttrMap, DispatchDoubleClick):
     def selectable(self) -> bool:
         return True
 
     def get_state(self) -> None | Literal["asc", "desc"]:
         prop, type = self._custom_data["FilePanel"].get_sort()
-        if (prop == self._prop):
+        if prop == self._prop:
             return type
         return None
 
@@ -146,9 +146,9 @@ class Title(urwid.AttrMap):
 
     def get_text(self) -> str:
         temp = self._name
-        if (self.get_state() == "asc"):
+        if self.get_state() == "asc":
             temp += " ↑"
-        if (self.get_state() == "desc"):
+        if self.get_state() == "desc":
             temp += " ↓"
         return temp
 
@@ -160,7 +160,7 @@ class Title(urwid.AttrMap):
 
     def keypress(self, size: tuple[()] | tuple[int]
                  | tuple[int, int], key: str) -> str | None:
-        if (key == Manager.KeyMap.toggle()):
+        if key == Manager.KeyMap.toggle():
             self.next_state()
         return super().keypress(size, key)
 
@@ -169,10 +169,8 @@ class Title(urwid.AttrMap):
 
     def mouse_event(self, size: tuple[()] | tuple[int] | tuple[int, int],
                     event: str, button: int, col: int, row: int, focus: bool) -> bool | None:
-        if (event == "mouse press" and button == 1):
-            if (time.time() - self._last_click < 0.2):
-                self.double_click()
-            self._last_click = time.time()
+        if event == "mouse press" and button == 1:
+            self.dispatch_double_click()
         return super().mouse_event(size, event, button, col, row, focus)
 
     def __init__(self, custom_data, name: str, property: str,
@@ -237,7 +235,7 @@ class FileEntry(TableEntry, DispatchDoubleClick):
     ]
 
     def revert_selection(self) -> None:
-        if (self.data.getSelected() == 'unavailable'):
+        if self.data.getSelected() == 'unavailable':
             return
         self._workspace.set_selected(self.data, not self.data.getSelected())
 
@@ -255,18 +253,18 @@ class FileEntry(TableEntry, DispatchDoubleClick):
         return self._columns.mouse_event(size, event, button, col, row, focus)
 
     def get_color(self) -> str:
-        if (self.data.isDir()):
+        if self.data.isDir():
             return "folds"
-        if (self.data.is_executable()):
+        if self.data.is_executable():
             return "execs"
         return "normal"
 
     def step_in(self) -> None:
 
-        if (self.data.isDir()):
+        if self.data.isDir():
             # content.update(self.data.getPath(),self.pos)
             res = self._workspace.step_in(self.data.getPath())
-            if (res is not None):
+            if res is not None:
                 self._custom_data["TwoTabs"].push_on_stack(ErrorWindow(res))
         else:
             command = ConfigManager.get_command(self.data.getPath())
@@ -278,19 +276,19 @@ class FileEntry(TableEntry, DispatchDoubleClick):
     def keypress(self, size: tuple[()] | tuple[int]
                  | tuple[int, int], key: str) -> str | None:
         super().keypress(size, key)
-        if (key == Manager.KeyMap.enter()):
+        if key == Manager.KeyMap.enter():
             self.step_in()
-        if (key == Manager.KeyMap.props() and Manager.get_lock() is None):
+        if key == Manager.KeyMap.props() and Manager.get_lock() is None:
             pw = PropertyWindow(self.data)
             self._custom_data["viewstack_push_function"](pw)
-        if (key == Manager.KeyMap().toggle() and Manager.get_lock() is None):
+        if key == Manager.KeyMap().toggle() and Manager.get_lock() is None:
             self.revert_selection()
             # self._invalidate()
         return super().keypress(size, key)
 
     def render(self, size: tuple[int], focus: bool = False) -> urwid.Canvas:
         inv = False
-        if (self.focused != focus):
+        if self.focused != focus:
             inv = True
         self.focused = focus
         if inv:
@@ -305,7 +303,7 @@ class TitleEntry(urwid.Pile):
         self._custom_data = custom_data.copy()
         arr = []
         for i in range(len(FileEntry.schema)):
-            if (FileEntry.title_schema[i] is None):
+            if FileEntry.title_schema[i] is None:
                 arr.append(
                     ('weight', FileEntry.schema[i]["size"], urwid.Text("")))
             else:
@@ -328,7 +326,7 @@ class PanelPathPart(urwid.Text, DispatchDoubleClick):
 
     def move(self):
         res = self._custom_data["Workspace"].step_in(self._path)
-        if (res is not None):
+        if res is not None:
             self._custom_data["TwoTabs"].push_on_stack(ErrorWindow(res))
 
     def double_click(self):
