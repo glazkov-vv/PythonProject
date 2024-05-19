@@ -8,3 +8,5 @@ app2.py
 htmlcov/*
 coverage.xml
 .coverage
+build/
+dist/
