@@ -54,8 +54,8 @@ class Workspace(Subscriptable):
     def rebuild(self, should_update: bool = False) -> None:
         self._contents = build_table(self.get_path(), self._tree)
 
-        prop, type = self._sort
-        reverse = -1 if type == "desc" else 1
+        prop, sort_type = self._sort
+        reverse = -1 if sort_type == "desc" else 1
 
         def cmp(x: File, y: File, reverse: int) -> int:
             c = 1

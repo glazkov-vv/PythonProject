@@ -32,13 +32,13 @@ class TableEntry(urwid.Widget):
         for h in self.__class__.schema:
             method = h["method"]
             sz = h['size']
-            type = h["type"]
+            method_type = h["type"]
 
-            if (type == 'text'):
+            if (method_type == 'text'):
                 value = method(self)
                 text = urwid.Text(value, wrap='ellipsis')
                 self._column_content.append(text)
-            elif (type == 'widget'):
+            elif (method_type == 'widget'):
                 self._column_content.append(
                     method(self))
             init_list.append(('weight', sz, self._column_content[-1]))
@@ -51,11 +51,11 @@ class TableEntry(urwid.Widget):
         ops = self.data
         for h in self.__class__.schema:
             method = h["method"]
-            type = h["type"]
-            if (type == 'text'):
+            method_type = h["type"]
+            if (method_type == 'text'):
                 self._column_content[i].set_text(
                     method(self))
-            elif (type == 'widget'):
+            elif (method_type == 'widget'):
                 self._column_content[i].update_data()
             i += 1
 
@@ -131,9 +131,9 @@ class Title(urwid.AttrMap, DispatchDoubleClick):
         return True
 
     def get_state(self) -> None | Literal["asc", "desc"]:
-        prop, type = self._custom_data["FilePanel"].get_sort()
+        prop, sort_type = self._custom_data["FilePanel"].get_sort()
         if prop == self._prop:
-            return type
+            return sort_type
         return None
 
     def update(self) -> None:

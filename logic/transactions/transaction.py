@@ -37,14 +37,15 @@ def calc_size(path: str) -> int:
 
 
 def calc_total_size(paths: Iterable[str]) -> int:
-    sum = 0
+    csum = 0
     for h in paths:
-        sum += calc_size(h)
-    return sum
+        csum += calc_size(h)
+    return csum
 
 
 class DoNothingTransaction(Transaction):
     def __init__(self) -> None:
+
         super().__init__()
 
     async def execute(self) -> None | str:

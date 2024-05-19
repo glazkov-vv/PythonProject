@@ -102,8 +102,8 @@ class File(Subscriptable):
             return datetime.fromtimestamp(0)
 
     def get_modified_formatted(self) -> str:
-        time = self.get_modified()
-        return "NaN" if time == datetime.fromtimestamp(
-            0) else humanize.naturaltime(time)
+        ctime = self.get_modified()
+        return "NaN" if ctime == datetime.fromtimestamp(
+            0) else humanize.naturaltime(ctime)
 
     props = {"name": get_name, "size": getSize, "modified": get_modified}
